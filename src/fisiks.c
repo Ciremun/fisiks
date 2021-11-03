@@ -143,9 +143,9 @@ void print(double idebug) { (void)idebug; }
 #ifdef __wasm__
 #define malloc  fisiks_malloc
 #define realloc fisiks_realloc
-#define strlen fisiks_strlen
-#define memset fisiks_memset
-#define memcpy fisiks_memcpy
+#define strlen  fisiks_strlen
+#define memset  fisiks_memset
+#define memcpy  fisiks_memcpy
 
 unsigned long long int fisiks_strlen(const char *s)
 {
