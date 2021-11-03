@@ -8,6 +8,7 @@ fisiks
 *.obj
 *.exe
 *.old
+*.isdig
 opt.js
 subst
 main.wasm
