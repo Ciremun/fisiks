@@ -84,7 +84,7 @@ int *grid = 0;
 int *next_grid = 0;
 int grid_size = DEFAULT_GRID_SIZE;
 int gamemode = GAME_OF_LIFE;
-int paused = 1;
+int paused = 0;
 int reset_t = 0;
 int message_t = 0;
 
@@ -503,7 +503,23 @@ int
     fisiks_memset(grid, 0, GRID_SIZE(grid_size));
     fisiks_memset(next_grid, 0, GRID_SIZE(grid_size));
 
-    change_animation_state(&pause_a, FADE_IN);
+    // []  []
+    //   []
+    // []  []
+    grid[grid_size * 14 + 2] = ALIVE;
+    grid[grid_size * 16 + 2] = ALIVE;
+    grid[grid_size * 15 + 3] = ALIVE;
+    grid[grid_size * 14 + 4] = ALIVE;
+    grid[grid_size * 16 + 4] = ALIVE;
+
+    // []  []
+    //   []
+    //   []
+    grid[grid_size * 14 + 6] = ALIVE;
+    grid[grid_size * 16 + 6] = ALIVE;
+    grid[grid_size * 15 + 7] = ALIVE;
+    grid[grid_size * 15 + 8] = ALIVE;
+
     display_message("fisiks");
 
 #ifdef RAWDRAW_USE_LOOP_FUNCTION
