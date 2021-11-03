@@ -23,6 +23,7 @@ static uint32_t SWAPS(uint32_t r)
 }
 #define STB_SPRINTF_IMPLEMENTATION
 #include "stb_sprintf.h"
+#define snprintf stbsp_snprintf
 #endif // __wasm__
 
 #ifdef _MSC_VER
@@ -33,13 +34,13 @@ static uint32_t SWAPS(uint32_t r)
 #define CNFG_IMPLEMENTATION
 #include "rawdraw_sf.h"
 
-#define WINDOW_NAME "Cellular Automatons"
+#define WINDOW_NAME      "Cellular Automatons"
 #define MAX_MESSAGE_SIZE 256
 
-#define ALIVE 1
-#define DEAD 0
-#define DYING 2
-#define DEFAULT_GRID_SIZE 32
+#define ALIVE                 1
+#define DEAD                  0
+#define DYING                 2
+#define DEFAULT_GRID_SIZE     32
 #define GRID_SIZE_CHANGE_STEP 8
 
 #define GAME_OF_LIFE 0
@@ -52,16 +53,16 @@ static uint32_t SWAPS(uint32_t r)
 #endif // __wasm__
 
 #define TRANSPARENT_ 0xffffff00
-#define WHITE COLOR(0xffffffff)
+#define WHITE        COLOR(0xffffffff)
 
-#define FADE_IN 0
+#define FADE_IN  0
 #define FADE_OUT 1
-#define IDLE 2
-#define HIDDEN 3
+#define IDLE     2
+#define HIDDEN   3
 
 #define SPACE_KEY 32
-#define ONE_KEY 49
-#define TWO_KEY 50
+#define ONE_KEY   49
+#define TWO_KEY   50
 
 #ifdef __wasm__
 #define R_KEY 82
@@ -71,34 +72,36 @@ static uint32_t SWAPS(uint32_t r)
 
 #if defined(_WIN32) || defined(__wasm__)
 #define MINUS_KEY 189
-#define PLUS_KEY 187
+#define PLUS_KEY  187
 #else
 #define MINUS_KEY 45
-#define PLUS_KEY 43
-#define EQ_KEY 61
+#define PLUS_KEY  43
+#define EQ_KEY    61
 #endif // _WIN32
 
 #define GRID_SIZE(gs) (sizeof(int) * gs * gs)
 
+typedef unsigned long long int u64;
+
 int *grid = 0;
 int *next_grid = 0;
-int grid_size = DEFAULT_GRID_SIZE;
-int gamemode = GAME_OF_LIFE;
-int paused = 0;
-int reset_t = 0;
-int message_t = 0;
+int  grid_size = DEFAULT_GRID_SIZE;
+int  gamemode = GAME_OF_LIFE;
+int  paused = 0;
+int  reset_t = 0;
+int  message_t = 0;
 
-short w, h;
-int cell_width, cell_height;
+short  w, h;
+int    cell_width, cell_height;
 double absolute_time;
-char message[MAX_MESSAGE_SIZE];
+char   message[MAX_MESSAGE_SIZE];
 
 volatile int suspended;
 
 #ifdef __ANDROID__
 static int keyboard_up;
-int font_size = 20;
-int paused_t_width = 350;
+int        font_size = 20;
+int        paused_t_width = 350;
 #else
 int font_size = 10;
 int paused_t_width = 200;
@@ -106,26 +109,43 @@ int paused_t_width = 200;
 
 #ifdef __wasm__
 extern unsigned char __heap_base;
-char *heap = (char *)&__heap_base;
+char                *heap = (char *)&__heap_base;
 #endif // __wasm__
 
 typedef struct
 {
     uint32_t color;
-    double duration;
-    double start;
-    int state;
+    double   duration;
+    double   start;
+    int      state;
 } Animation;
 
-Animation pause_a = {.color = 0, .duration = .5, .start = 0.0, .state = HIDDEN};
+Animation pause_a = {
+    .color = 0,
+    .duration = .5,
+    .start = 0.0,
+    .state = HIDDEN,
+};
+
 Animation message_a = {
-    .color = 0, .duration = 1.0, .start = 0.0, .state = HIDDEN};
+    .color = 0,
+    .duration = 1.0,
+    .start = 0.0,
+    .state = HIDDEN,
+};
 
 double OGGetAbsoluteTime();
-void print(double idebug);
+void   print(double idebug);
 #ifndef __wasm__
 void print(double idebug) { (void)idebug; }
 #endif // __wasm__
+
+#ifdef __wasm__
+#define malloc  fisiks_malloc
+#define realloc fisiks_realloc
+#define strlen fisiks_strlen
+#define memset fisiks_memset
+#define memcpy fisiks_memcpy
 
 unsigned long long int fisiks_strlen(const char *s)
 {
@@ -152,17 +172,16 @@ void *fisiks_memcpy(void *dst, void const *src, unsigned long long int size)
     return dst;
 }
 
-#ifdef __wasm__
 void *fisiks_malloc(unsigned long long size)
 {
     heap += size;
     return heap - size;
 }
 
-void *fisiks_realloc(void *old_mem, unsigned long long size,
-                  unsigned long long old_size)
+void *fisiks_realloc(void *old_mem, unsigned long long size)
 {
     // since we only have a grid
+    u64 old_size = GRID_SIZE(grid_size);
     if (size <= old_size)
     {
         heap -= old_size;
@@ -182,9 +201,9 @@ void change_animation_state(Animation *a, int new_state)
 
 void display_message(char *msg)
 {
-    unsigned long long int msg_size = fisiks_strlen(msg) + 1;
-    fisiks_memset(message, 0, MAX_MESSAGE_SIZE);
-    fisiks_memcpy(message, msg, msg_size);
+    unsigned long long int msg_size = strlen(msg) + 1;
+    memset(message, 0, MAX_MESSAGE_SIZE);
+    memcpy(message, msg, msg_size);
     message_t = (int)OGGetAbsoluteTime();
     change_animation_state(&message_a, FADE_IN);
 }
@@ -204,8 +223,8 @@ void set_fade_color(Animation *a)
         }
         else
         {
-            new_color = (uint32_t)((a->color & TRANSPARENT_) +
-                                   (s_passed / a->duration) * 255);
+            new_color = (uint32_t)((a->color & TRANSPARENT_)
+                                   + (s_passed / a->duration) * 255);
         }
     }
     break;
@@ -219,9 +238,9 @@ void set_fade_color(Animation *a)
         }
         else
         {
-            new_color =
-                (uint32_t)((a->color & TRANSPARENT_) +
-                           ((a->duration - s_passed) / a->duration) * 255);
+            new_color
+                = (uint32_t)((a->color & TRANSPARENT_)
+                             + ((a->duration - s_passed) / a->duration) * 255);
         }
     }
     break;
@@ -239,21 +258,11 @@ void change_grid_size(int new_size)
 {
     cell_width = w / new_size;
     cell_height = h / new_size;
-#ifndef __wasm__
     grid = realloc(grid, GRID_SIZE(new_size));
     next_grid = realloc(next_grid, GRID_SIZE(new_size));
-#else
-    grid = fisiks_realloc(grid, GRID_SIZE(new_size), GRID_SIZE(grid_size));
-    next_grid =
-        fisiks_realloc(next_grid, GRID_SIZE(new_size), GRID_SIZE(grid_size));
-#endif // __wasm__
-    fisiks_memset(grid, 0, GRID_SIZE(new_size));
-    fisiks_memset(next_grid, 0, GRID_SIZE(new_size));
-#ifdef __wasm__
-    stbsp_snprintf(message, MAX_MESSAGE_SIZE, "%s: %d", "Grid Size", new_size);
-#else
+    memset(grid, 0, GRID_SIZE(new_size));
+    memset(next_grid, 0, GRID_SIZE(new_size));
     snprintf(message, MAX_MESSAGE_SIZE, "%s: %d", "Grid Size", new_size);
-#endif // __wasm__
     message_t = (int)OGGetAbsoluteTime();
     change_animation_state(&message_a, FADE_IN);
     grid_size = new_size;
@@ -287,7 +296,7 @@ void
             }
             break;
         case R_KEY:
-            fisiks_memset(grid, 0, GRID_SIZE(grid_size));
+            memset(grid, 0, GRID_SIZE(grid_size));
             reset_t = (int)OGGetAbsoluteTime();
             break;
         case MINUS_KEY:
@@ -338,10 +347,7 @@ void cell_index(int x, int y, int *cell_x, int *cell_y)
     *cell_y = y / (h / grid_size);
 }
 
-int on_grid(int cell_i)
-{
-    return 0 <= cell_i && cell_i <= grid_size - 1;
-}
+int on_grid(int cell_i) { return 0 <= cell_i && cell_i <= grid_size - 1; }
 
 void toggle_cell(int x, int y, int val)
 {
@@ -434,7 +440,7 @@ void apply_game_rules(int x, int y)
 
 void draw_cells()
 {
-    fisiks_memcpy(next_grid, grid, GRID_SIZE(grid_size));
+    memcpy(next_grid, grid, GRID_SIZE(grid_size));
     for (int y = 0; y < grid_size; ++y)
         for (int x = 0; x < grid_size; ++x)
         {
@@ -443,7 +449,7 @@ void draw_cells()
             if (grid[x * grid_size + y] == ALIVE)
                 draw_cell(x, y);
         }
-    fisiks_memcpy(grid, next_grid, GRID_SIZE(grid_size));
+    memcpy(grid, next_grid, GRID_SIZE(grid_size));
 }
 
 void draw_messages()
@@ -461,7 +467,7 @@ void draw_messages()
             change_animation_state(&message_a, FADE_OUT);
         }
         set_fade_color(&message_a);
-        int message_length = (int)fisiks_strlen(message);
+        int message_length = (int)strlen(message);
         draw_message(w / 2 - message_length * 30, 120, message);
     }
     if (reset_t)
@@ -493,15 +499,10 @@ int
     cell_width = w / grid_size;
     cell_height = h / grid_size;
 
-#ifdef __wasm__
-    grid = fisiks_malloc(GRID_SIZE(grid_size));
-    next_grid = fisiks_malloc(GRID_SIZE(grid_size));
-#else
     grid = malloc(GRID_SIZE(grid_size));
     next_grid = malloc(GRID_SIZE(grid_size));
-#endif // __wasm__
-    fisiks_memset(grid, 0, GRID_SIZE(grid_size));
-    fisiks_memset(next_grid, 0, GRID_SIZE(grid_size));
+    memset(grid, 0, GRID_SIZE(grid_size));
+    memset(next_grid, 0, GRID_SIZE(grid_size));
 
     // []  []
     //   []
