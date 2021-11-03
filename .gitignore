@@ -1,0 +1,13 @@
+.vscode/
+makecapk/
+build/
+fisiks
+*.keystore
+*.apk
+*.obj
+*.exe
+*.old
+opt.js
+subst
+main.wasm
+nobuild
