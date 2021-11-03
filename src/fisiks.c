@@ -147,15 +147,15 @@ void print(double idebug) { (void)idebug; }
 #define memset  fisiks_memset
 #define memcpy  fisiks_memcpy
 
-unsigned long long int fisiks_strlen(const char *s)
+u64 fisiks_strlen(const char *s)
 {
-    unsigned long long int sz = 0;
+    u64 sz = 0;
     while (s[sz] != '\0')
         sz++;
     return sz;
 }
 
-void *fisiks_memset(void *dest, int val, unsigned long long int len)
+void *fisiks_memset(void *dest, int val, u64 len)
 {
     unsigned char *ptr = dest;
     while (len-- > 0)
@@ -163,7 +163,7 @@ void *fisiks_memset(void *dest, int val, unsigned long long int len)
     return dest;
 }
 
-void *fisiks_memcpy(void *dst, void const *src, unsigned long long int size)
+void *fisiks_memcpy(void *dst, void const *src, u64 size)
 {
     unsigned char *source = (unsigned char *)src;
     unsigned char *dest = (unsigned char *)dst;
@@ -201,7 +201,7 @@ void change_animation_state(Animation *a, int new_state)
 
 void display_message(char *msg)
 {
-    unsigned long long int msg_size = strlen(msg) + 1;
+    u64 msg_size = strlen(msg) + 1;
     memset(message, 0, MAX_MESSAGE_SIZE);
     memcpy(message, msg, msg_size);
     message_t = (int)OGGetAbsoluteTime();
