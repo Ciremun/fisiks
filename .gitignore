@@ -1,6 +1,7 @@
 .vscode/
 makecapk/
 build/
+platform/wasm/index.html
 fisiks
 *.keystore
 *.apk

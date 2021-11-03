@@ -38,7 +38,7 @@ index.html : template.ht opt.js
 subst : subst.c
 	cc -o $@ $^
 
-main.wasm: ../../fisiks.c
+main.wasm: ../../src/fisiks.c
 	$(CLANG) $(CFLAGS) $^ -o $@
 	$(WASMOPT) $(WOFLAGS) -Oz main.wasm -o main.wasm
 	#wasm-objdump -d main.wasm > main.disassembly.txt

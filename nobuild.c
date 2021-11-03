@@ -33,14 +33,14 @@ void build()
     SET_COMPILER_EXECUTABLE("cc", cc, DEFAULT_CC);
     if (strcmp(cc, "cl") == 0)
     {
-        CMD(cc, MSVC_CFLAGS, "fisiks.c", "/Fe:", "fisiks");
+        CMD(cc, MSVC_CFLAGS, "src/fisiks.c", "/Fe:", "fisiks");
     }
     else
     {
 #ifdef _WIN32
-        CMD(cc, CFLAGS, "fisiks.c", "-o", "fisiks", "-lGdi32");
+        CMD(cc, CFLAGS, "src/fisiks.c", "-o", "fisiks", "-lGdi32");
 #else
-        CMD(cc, CFLAGS, "fisiks.c", "-o", "fisiks", "-lX11");
+        CMD(cc, CFLAGS, "src/fisiks.c", "-o", "fisiks", "-lX11");
 #endif // _WIN32
     }
 }

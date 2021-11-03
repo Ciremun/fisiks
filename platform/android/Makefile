@@ -3,7 +3,7 @@
 
 all : makecapk.apk
 
-SRC?=../../fisiks.c
+SRC?=../../src/fisiks.c
 
 linux :
 	$(CC) -I../../src/include $(SRC) -lX11 -o fisiks
