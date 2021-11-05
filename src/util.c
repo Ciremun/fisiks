@@ -68,3 +68,10 @@ void print(double idebug)
     (void)idebug;
 }
 #endif // __wasm__
+
+void draw_text(const char *text, int x, int y, int font_size)
+{
+    CNFGPenX = x;
+    CNFGPenY = y;
+    CNFGDrawText(text, font_size);
+}

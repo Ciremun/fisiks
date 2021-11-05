@@ -1,2 +1,5 @@
-#include "util.c"
 #include "main.c"
+#include "util.c"
+#include "grid.c"
+#include "anim.c"
+#include "event.c"

@@ -8,6 +8,11 @@
 #include "typedef.h"
 
 #define GRID_SIZE(gs) (sizeof(int) * gs * gs)
+#ifdef __wasm__
+#define EXPORT(s) __attribute__((export_name(s)))
+#else
+#define EXPORT(s)
+#endif // __wasm__
 
 #ifdef __wasm__
 #define malloc fisiks_malloc
@@ -27,5 +32,7 @@ void *fisiks_malloc(unsigned long long size);
 void *fisiks_realloc(void *old_mem, unsigned long long size);
 void print(double idebug);
 #endif // __wasm__
+
+void draw_text(const char *text, int x, int y, int font_size);
 
 #endif // _UTIL_H_
