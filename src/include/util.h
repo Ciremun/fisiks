@@ -10,11 +10,11 @@
 #define GRID_SIZE(gs) (sizeof(int) * gs * gs)
 
 #ifdef __wasm__
-#define malloc  fisiks_malloc
+#define malloc fisiks_malloc
 #define realloc fisiks_realloc
-#define strlen  fisiks_strlen
-#define memset  fisiks_memset
-#define memcpy  fisiks_memcpy
+#define strlen fisiks_strlen
+#define memset fisiks_memset
+#define memcpy fisiks_memcpy
 #endif // __wasm__
 
 #ifdef __wasm__
@@ -25,7 +25,7 @@ void *fisiks_memset(void *dest, int val, u64 len);
 void *fisiks_memcpy(void *dst, void const *src, u64 size);
 void *fisiks_malloc(unsigned long long size);
 void *fisiks_realloc(void *old_mem, unsigned long long size);
-void   print(double idebug);
+void print(double idebug);
 #endif // __wasm__
 
 #endif // _UTIL_H_

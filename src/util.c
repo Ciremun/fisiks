@@ -52,7 +52,7 @@ void *fisiks_malloc(unsigned long long size)
 
 void *fisiks_realloc(void *old_mem, unsigned long long size)
 {
-    // since we only have a grid
+// since we only have a grid
     u64 old_size = GRID_SIZE(grid_size);
     if (size <= old_size) {
         heap -= old_size;

@@ -2,73 +2,73 @@
 #define _OS_GENERIC_H
 /*
 	"osgeneric" Generic, platform independent tool for threads and time.
-		Geared around Windows and Linux. Designed for operation on MSVC,
-		TCC, GCC and clang.  Others may work.
+ Geared around Windows and Linux. Designed for operation on MSVC,
+ TCC, GCC and clang. Others may work.
 
-    It offers the following operations:
+ It offers the following operations:
 
 	Delay functions:
-		void OGSleep( int is );
-		void OGUSleep( int ius );
+ void OGSleep( int is );
+ void OGUSleep( int ius );
 
 	Getting current time (may be time from program start, boot, or epoc)
-		double OGGetAbsoluteTime();
-		double OGGetFileTime( const char * file );
+ double OGGetAbsoluteTime();
+ double OGGetFileTime( const char * file );
 
 	Thread functions
-		og_thread_t OGCreateThread( void * (routine)( void * ), void * parameter );
-		void * OGJoinThread( og_thread_t ot );
-		void OGCancelThread( og_thread_t ot );
+ og_thread_t OGCreateThread( void * (routine)( void * ), void * parameter );
+ void * OGJoinThread( og_thread_t ot );
+ void OGCancelThread( og_thread_t ot );
 
 	Mutex functions, used for protecting data structures.
-		 (recursive on platforms where available.)
-		og_mutex_t OGCreateMutex();
-		void OGLockMutex( og_mutex_t om );
-		void OGUnlockMutex( og_mutex_t om );
-		void OGDeleteMutex( og_mutex_t om );
+ (recursive on platforms where available.)
+ og_mutex_t OGCreateMutex();
+ void OGLockMutex( og_mutex_t om );
+ void OGUnlockMutex( og_mutex_t om );
+ void OGDeleteMutex( og_mutex_t om );
 
 	Always a semaphore (not recursive)
-		og_sema_t OGCreateSema(); //Create a semaphore, comes locked initially.
-          NOTE: For platform compatibility, max count is 32767
-		void OGLockSema( og_sema_t os );
-		int OGGetSema( og_sema_t os );  //if <0 there was a failure.
-		void OGUnlockSema( og_sema_t os );
-		void OGDeleteSema( og_sema_t os );
+ og_sema_t OGCreateSema(); //Create a semaphore, comes locked initially.
+ NOTE: For platform compatibility, max count is 32767
+ void OGLockSema( og_sema_t os );
+ int OGGetSema( og_sema_t os ); //if <0 there was a failure.
+ void OGUnlockSema( og_sema_t os );
+ void OGDeleteSema( og_sema_t os );
 
 	TLS (Thread-Local Storage)
-		og_tls_t OGCreateTLS();
-		void OGDeleteTLS( og_tls_t tls );
-		void OGSetTLS( og_tls_t tls, void * data );
-		void * OGGetTLS( og_tls_t tls );
+ og_tls_t OGCreateTLS();
+ void OGDeleteTLS( og_tls_t tls );
+ void OGSetTLS( og_tls_t tls, void * data );
+ void * OGGetTLS( og_tls_t tls );
 
-   You can permute the operations of this file by the following means:
-    OSG_NO_IMPLEMENTATION
+ You can permute the operations of this file by the following means:
+ OSG_NO_IMPLEMENTATION
 	OSG_PREFIX
 	OSG_NOSTATIC
 
-   The default behavior is to do static inline.
+ The default behavior is to do static inline.
 
-   Copyright (c) 2011-2012,2013,2016,2018,2019,2020 <>< Charles Lohr
+ Copyright (c) 2011-2012,2013,2016,2018,2019,2020 <>< Charles Lohr
 
-   This file may be licensed under the MIT/x11 license, NewBSD or CC0 licenses
+ This file may be licensed under the MIT/x11 license, NewBSD or CC0 licenses
 
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a
+ copy of this software and associated documentation files (the "Software"),
+ to deal in the Software without restriction, including without limitation
+ the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ and/or sell copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following conditions:
 
-   The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of this file.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of this file.
 
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-   IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ IN THE SOFTWARE.
 
 	Date Stamp: 2019-09-05 CNL: Allow for noninstantiation and added TLS.
 	Date Stamp: 2018-03-25 CNL: Switched to header-only format.
@@ -244,7 +244,7 @@ OSG_PREFIX int OGGetSema( og_sema_t os )
     typedef NTSTATUS (NTAPI *_NtQuerySemaphore)(
         HANDLE SemaphoreHandle,
         DWORD SemaphoreInformationClass, /* Would be SEMAPHORE_INFORMATION_CLASS */
-        PVOID SemaphoreInformation,      /* but this is to much to dump here     */
+        PVOID SemaphoreInformation, /* but this is to much to dump here */
         ULONG SemaphoreInformationLength,
         PULONG ReturnLength OPTIONAL
     );
@@ -402,7 +402,7 @@ OSG_PREFIX void OGCancelThread( og_thread_t ot )
 
 OSG_PREFIX og_mutex_t OGCreateMutex()
 {
-    pthread_mutexattr_t   mta;
+    pthread_mutexattr_t mta;
     og_mutex_t r = malloc( sizeof( pthread_mutex_t ) );
     if( !r ) return 0;
 
