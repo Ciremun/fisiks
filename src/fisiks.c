@@ -47,8 +47,8 @@ static uint32_t SWAPS(uint32_t r)
 #define BRIANS_BRAIN 1
 
 #ifdef __wasm__
-#define COLOR(c) SWAPS(c)
-#define EXPORT(s)     __attribute__((export_name(s)))
+#define COLOR(c)  SWAPS(c)
+#define EXPORT(s) __attribute__((export_name(s)))
 #else
 #define COLOR(c) c
 #define EXPORT(s)
@@ -249,8 +249,7 @@ void set_fade_color(Animation *a)
         new_color = a->color;
         break;
     default:
-    {
-    }
+        break;
     }
     CNFGColor(COLOR(new_color));
 }
