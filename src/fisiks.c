@@ -88,7 +88,6 @@ typedef unsigned long long int u64;
 int *grid = 0;
 int *next_grid = 0;
 int  grid_size = DEFAULT_GRID_SIZE;
-int  gamemode = GAME_OF_LIFE;
 int  paused = 0;
 int  reset_t = 0;
 int  message_t = 0;
@@ -312,14 +311,6 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
 #endif
         case PLUS_KEY:
             change_grid_size(grid_size + GRID_SIZE_CHANGE_STEP);
-            break;
-        case ONE_KEY:
-            gamemode = GAME_OF_LIFE;
-            display_message("Game Of Life");
-            break;
-        case TWO_KEY:
-            gamemode = BRIANS_BRAIN;
-            display_message("Brian's Brain");
             break;
         }
 #ifdef __ANDROID__
