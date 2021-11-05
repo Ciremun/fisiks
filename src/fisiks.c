@@ -48,8 +48,10 @@ static uint32_t SWAPS(uint32_t r)
 
 #ifdef __wasm__
 #define COLOR(c) SWAPS(c)
+#define EXPORT(s)     __attribute__((export_name(s)))
 #else
 #define COLOR(c) c
+#define EXPORT(s)
 #endif // __wasm__
 
 #define TRANSPARENT_ 0xffffff00
@@ -268,11 +270,7 @@ void change_grid_size(int new_size)
     grid_size = new_size;
 }
 
-void
-#ifdef __wasm__
-    __attribute__((export_name("HandleKey")))
-#endif // __wasm__
-    HandleKey(int keycode, int bDown)
+void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
 {
     if (bDown)
         switch (keycode)
@@ -357,11 +355,7 @@ void toggle_cell(int x, int y, int val)
         grid[cell_x * grid_size + cell_y] = val;
 }
 
-void
-#ifdef __wasm__
-    __attribute__((export_name("HandleButton")))
-#endif // __wasm__
-    HandleButton(int x, int y, int button, int bDown)
+void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
 {
     (void)button;
     if (bDown)
@@ -378,11 +372,7 @@ void
     }
 }
 
-void
-#ifdef __wasm__
-    __attribute__((export_name("HandleMotion")))
-#endif // __wasm__
-    HandleMotion(int x, int y, int mask)
+void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
 {
 #ifndef __ANDROID__
     if (!mask)
@@ -484,11 +474,7 @@ void draw_messages()
     }
 }
 
-int
-#ifdef __wasm__
-    __attribute__((export_name("main")))
-#endif // __wasm__
-    main()
+int EXPORT("main") main()
 {
     CNFGBGColor = COLOR(0x000080ff);
     setup_window();
@@ -526,7 +512,7 @@ int
 #ifdef RAWDRAW_USE_LOOP_FUNCTION
     return 0;
 }
-int __attribute__((export_name("loop"))) loop()
+int EXPORT("loop") loop()
 {
 #else
     while (1)
@@ -539,7 +525,7 @@ int __attribute__((export_name("loop"))) loop()
         if (suspended)
             continue;
         if (!paused)
-            OGUSleep(50000);
+            OGUSleep(5000);
 #endif // __wasm__
 
         CNFGColor(COLOR(0xff00ffff));
