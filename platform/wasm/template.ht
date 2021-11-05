@@ -9,9 +9,7 @@
 		</style>
 	</head>
 	<body>
-		<div style="position: absolute; z-index: 3;">
-			<canvas width=500 height=500 id=canvas></canvas>
-		</div>
+		<div><canvas id="canvas"></canvas></div>
 		<script>
 ${JAVASCRIPT_DATA}
 		</script>
