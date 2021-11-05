@@ -2,88 +2,49 @@
 // License you choose.
 // NO WARRANTY! NO GUARANTEE OF SUPPORT! USE AT YOUR OWN RISK
 
-#ifndef __wasm__
-#include "os_generic.h"
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#else
-#include <stdint.h>
-static uint32_t SWAPS(uint32_t r)
-{
-    uint32_t ret = (r & 0xFF) << 24;
-    r >>= 8;
-    ret |= (r & 0xff) << 16;
-    r >>= 8;
-    ret |= (r & 0xff) << 8;
-    r >>= 8;
-    ret |= (r & 0xff) << 0;
-    return ret;
-}
-#define STB_SPRINTF_IMPLEMENTATION
-#include "stb_sprintf.h"
-#define snprintf stbsp_snprintf
-#endif // __wasm__
-
 #ifdef _MSC_VER
 #pragma comment(lib, "gdi32")
 #pragma comment(lib, "User32")
 #endif // _MSC_VER
 
+#ifndef __wasm__
+#include "os_generic.h"
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
+#endif // __wasm__
+
+#define STB_SPRINTF_IMPLEMENTATION
+#include "stb_sprintf.h"
+
 #define CNFG_IMPLEMENTATION
 #include "rawdraw_sf.h"
+
+#include "color.h"
+#include "keycode.h"
+#include "typedef.h"
+
+#define UTIL_IMPLEMENTATION
+#include "util.h"
 
 #define WINDOW_NAME      "fisiks"
 #define MAX_MESSAGE_SIZE 256
 
 #define ALIVE                 1
 #define DEAD                  0
-#define DYING                 2
 #define DEFAULT_GRID_SIZE     32
 #define GRID_SIZE_CHANGE_STEP 8
 
-#define GAME_OF_LIFE 0
-#define BRIANS_BRAIN 1
-
 #ifdef __wasm__
-#define COLOR(c)  SWAPS(c)
 #define EXPORT(s) __attribute__((export_name(s)))
 #else
-#define COLOR(c) c
 #define EXPORT(s)
 #endif // __wasm__
-
-#define TRANSPARENT_ 0xffffff00
-#define WHITE        COLOR(0xffffffff)
 
 #define FADE_IN  0
 #define FADE_OUT 1
 #define IDLE     2
 #define HIDDEN   3
-
-#define SPACE_KEY 32
-#define ONE_KEY   49
-#define TWO_KEY   50
-
-#ifdef __wasm__
-#define R_KEY 82
-#else
-#define R_KEY 114
-#endif // __wasm__
-
-#if defined(_WIN32) || defined(__wasm__)
-#define MINUS_KEY 189
-#define PLUS_KEY  187
-#else
-#define MINUS_KEY 45
-#define PLUS_KEY  43
-#define EQ_KEY    61
-#endif // _WIN32
-
-#define GRID_SIZE(gs) (sizeof(int) * gs * gs)
-
-typedef unsigned long long int u64;
 
 int *grid = 0;
 int *next_grid = 0;
@@ -108,13 +69,7 @@ int font_size = 10;
 int paused_t_width = 200;
 #endif // __ANDROID__
 
-#ifdef __wasm__
-extern unsigned char __heap_base;
-char                *heap = (char *)&__heap_base;
-#endif // __wasm__
-
-typedef struct
-{
+typedef struct {
     uint32_t color;
     double   duration;
     double   start;
@@ -135,65 +90,6 @@ Animation message_a = {
     .state = HIDDEN,
 };
 
-double OGGetAbsoluteTime();
-void   print(double idebug);
-#ifndef __wasm__
-void print(double idebug) { (void)idebug; }
-#endif // __wasm__
-
-#ifdef __wasm__
-#define malloc  fisiks_malloc
-#define realloc fisiks_realloc
-#define strlen  fisiks_strlen
-#define memset  fisiks_memset
-#define memcpy  fisiks_memcpy
-
-u64 fisiks_strlen(const char *s)
-{
-    u64 sz = 0;
-    while (s[sz] != '\0')
-        sz++;
-    return sz;
-}
-
-void *fisiks_memset(void *dest, int val, u64 len)
-{
-    unsigned char *ptr = dest;
-    while (len-- > 0)
-        *ptr++ = val;
-    return dest;
-}
-
-void *fisiks_memcpy(void *dst, void const *src, u64 size)
-{
-    unsigned char *source = (unsigned char *)src;
-    unsigned char *dest = (unsigned char *)dst;
-    while (size--)
-        *dest++ = *source++;
-    return dst;
-}
-
-void *fisiks_malloc(unsigned long long size)
-{
-    heap += size;
-    return heap - size;
-}
-
-void *fisiks_realloc(void *old_mem, unsigned long long size)
-{
-    // since we only have a grid
-    u64 old_size = GRID_SIZE(grid_size);
-    if (size <= old_size)
-    {
-        heap -= old_size;
-        return heap;
-    }
-    void *new_mem = fisiks_malloc(size);
-    fisiks_memcpy(new_mem, old_mem, old_size);
-    return new_mem;
-}
-#endif // __wasm__
-
 void change_animation_state(Animation *a, int new_state)
 {
     a->start = OGGetAbsoluteTime();
@@ -212,33 +108,24 @@ void display_message(char *msg)
 void set_fade_color(Animation *a)
 {
     uint32_t new_color = 0;
-    switch (a->state)
-    {
-    case FADE_IN:
-    {
+    switch (a->state) {
+    case FADE_IN: {
         double s_passed = absolute_time - a->start;
-        if (s_passed >= a->duration)
-        {
+        if (s_passed >= a->duration) {
             a->state = IDLE;
             new_color = a->color;
-        }
-        else
-        {
+        } else {
             new_color = (uint32_t)((a->color & TRANSPARENT_)
                                    + (s_passed / a->duration) * 255);
         }
     }
     break;
-    case FADE_OUT:
-    {
+    case FADE_OUT: {
         double s_passed = absolute_time - a->start;
-        if (s_passed >= a->duration)
-        {
+        if (s_passed >= a->duration) {
             a->state = HIDDEN;
             new_color = a->color & TRANSPARENT_;
-        }
-        else
-        {
+        } else {
             new_color
                 = (uint32_t)((a->color & TRANSPARENT_)
                              + ((a->duration - s_passed) / a->duration) * 255);
@@ -262,7 +149,7 @@ void change_grid_size(int new_size)
     next_grid = realloc(next_grid, GRID_SIZE(new_size));
     memset(grid, 0, GRID_SIZE(new_size));
     memset(next_grid, 0, GRID_SIZE(new_size));
-    snprintf(message, MAX_MESSAGE_SIZE, "%s: %d", "Grid Size", new_size);
+    stbsp_snprintf(message, MAX_MESSAGE_SIZE, "%s: %d", "Grid Size", new_size);
     message_t = (int)OGGetAbsoluteTime();
     change_animation_state(&message_a, FADE_IN);
     grid_size = new_size;
@@ -271,12 +158,10 @@ void change_grid_size(int new_size)
 void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
 {
     if (bDown)
-        switch (keycode)
-        {
+        switch (keycode) {
         case SPACE_KEY:
             paused = !paused;
-            switch (pause_a.state)
-            {
+            switch (pause_a.state) {
             case FADE_IN:
                 pause_a.state = FADE_OUT;
                 break;
@@ -295,11 +180,9 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
             memset(grid, 0, GRID_SIZE(grid_size));
             reset_t = (int)OGGetAbsoluteTime();
             break;
-        case MINUS_KEY:
-        {
+        case MINUS_KEY: {
             int new_size = grid_size - GRID_SIZE_CHANGE_STEP;
-            if (new_size <= 0)
-            {
+            if (new_size <= 0) {
                 return;
             }
             change_grid_size(new_size);
@@ -313,10 +196,8 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
             break;
         }
 #ifdef __ANDROID__
-    else
-    {
-        switch (keycode)
-        {
+    else {
+        switch (keycode) {
         case 10:
             keyboard_up = 0;
             AndroidDisplayKeyboard(keyboard_up);
@@ -335,7 +216,10 @@ void cell_index(int x, int y, int *cell_x, int *cell_y)
     *cell_y = y / (h / grid_size);
 }
 
-int on_grid(int cell_i) { return 0 <= cell_i && cell_i <= grid_size - 1; }
+int on_grid(int cell_i)
+{
+    return 0 <= cell_i && cell_i <= grid_size - 1;
+}
 
 void toggle_cell(int x, int y, int val)
 {
@@ -348,11 +232,9 @@ void toggle_cell(int x, int y, int val)
 void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
 {
     (void)button;
-    if (bDown)
-    {
+    if (bDown) {
 #ifdef __ANDROID__
-        if ((w - 100 <= x && x <= w) && (0 <= y && y <= 100))
-        {
+        if ((w - 100 <= x && x <= w) && (0 <= y && y <= 100)) {
             keyboard_up = !keyboard_up;
             AndroidDisplayKeyboard(keyboard_up);
             return;
@@ -374,8 +256,14 @@ void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
 void HandleDestroy() {}
 
 #ifndef __wasm__
-void HandleSuspend() { suspended = 1; }
-void HandleResume() { suspended = 0; }
+void HandleSuspend()
+{
+    suspended = 1;
+}
+void HandleResume()
+{
+    suspended = 0;
+}
 #endif // __wasm__
 
 void setup_window()
@@ -408,10 +296,8 @@ void draw_cell(int x, int y)
 
 void apply_game_rules(int x, int y)
 {
-    if (grid[x * grid_size + y] == ALIVE && on_grid(y + 1))
-    {
-        if (next_grid[x * grid_size + y + 1] == DEAD)
-        {
+    if (grid[x * grid_size + y] == ALIVE && on_grid(y + 1)) {
+        if (next_grid[x * grid_size + y + 1] == DEAD) {
             next_grid[x * grid_size + y] = DEAD;
             next_grid[x * grid_size + y + 1] = ALIVE;
         }
@@ -422,8 +308,7 @@ void draw_cells()
 {
     memcpy(next_grid, grid, GRID_SIZE(grid_size));
     for (int y = 0; y < grid_size; ++y)
-        for (int x = 0; x < grid_size; ++x)
-        {
+        for (int x = 0; x < grid_size; ++x) {
             if (!paused)
                 apply_game_rules(x, y);
             if (grid[x * grid_size + y] == ALIVE)
@@ -434,15 +319,12 @@ void draw_cells()
 
 void draw_messages()
 {
-    if (pause_a.state != HIDDEN)
-    {
+    if (pause_a.state != HIDDEN) {
         set_fade_color(&pause_a);
         draw_message(w - paused_t_width, 10, "Paused");
     }
-    if (message_a.state != HIDDEN)
-    {
-        if (message_t && absolute_time - message_t > 2)
-        {
+    if (message_a.state != HIDDEN) {
+        if (message_t && absolute_time - message_t > 2) {
             message_t = 0;
             change_animation_state(&message_a, FADE_OUT);
         }
@@ -450,15 +332,11 @@ void draw_messages()
         int message_length = (int)strlen(message);
         draw_message(w / 2 - message_length * 30, 120, message);
     }
-    if (reset_t)
-    {
-        if (absolute_time - reset_t <= 1)
-        {
+    if (reset_t) {
+        if (absolute_time - reset_t <= 1) {
             CNFGColor(WHITE);
             draw_message(10, 10, "Reset");
-        }
-        else
-        {
+        } else {
             reset_t = 0;
         }
     }

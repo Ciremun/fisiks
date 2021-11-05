@@ -45,6 +45,11 @@ void build()
     }
 }
 
+void fmt()
+{
+    CMD("astyle", "src/*.c", "src/include/*.h", "-n", "-r", "--style=kr");
+}
+
 int main(int argc, char **argv)
 {
     GO_REBUILD_URSELF(argc, argv);
@@ -55,6 +60,11 @@ int main(int argc, char **argv)
         {
             build();
             RUN("fisiks");
+            return 0;
+        }
+        if (strcmp(argv[1], "fmt") == 0)
+        {
+            fmt();
             return 0;
         }
     }
