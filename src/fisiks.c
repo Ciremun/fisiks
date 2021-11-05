@@ -34,7 +34,7 @@ static uint32_t SWAPS(uint32_t r)
 #define CNFG_IMPLEMENTATION
 #include "rawdraw_sf.h"
 
-#define WINDOW_NAME      "Cellular Automatons"
+#define WINDOW_NAME      "fisiks"
 #define MAX_MESSAGE_SIZE 256
 
 #define ALIVE                 1

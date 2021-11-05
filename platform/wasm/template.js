@@ -108,7 +108,6 @@ function FrameStart()
 
 function SystemStart( title, w, h )
 {
-	document.title = toUTF8( title );
 	wgl.viewportWidth = canvas.width = w;
 	wgl.viewportHeight = canvas.height = h;
 }
