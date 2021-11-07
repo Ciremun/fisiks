@@ -11,5 +11,7 @@
 
 #define TRANSPARENT_ 0xffffff00
 #define WHITE COLOR(0xffffffff)
+#define BLACK COLOR(0x000000ff)
+#define SAND_COLOR COLOR(0xfcbf49ff)
 
 #endif // _COLOR_H_

@@ -80,7 +80,7 @@ void setup_window()
 
 int EXPORT("main") main()
 {
-    CNFGBGColor = COLOR(0x000080ff);
+    CNFGBGColor = BLACK;
     setup_window();
 
     pause_a.color = WHITE;
@@ -94,18 +94,12 @@ int EXPORT("main") main()
     memset(grid, 0, GRID_SIZE(grid_size));
     memset(next_grid, 0, GRID_SIZE(grid_size));
 
-// [] []
-// []
-// [] []
     grid[grid_size * 14 + 2] = ALIVE;
     grid[grid_size * 16 + 2] = ALIVE;
     grid[grid_size * 15 + 3] = ALIVE;
     grid[grid_size * 14 + 4] = ALIVE;
     grid[grid_size * 16 + 4] = ALIVE;
 
-// [] []
-// []
-// []
     grid[grid_size * 14 + 6] = ALIVE;
     grid[grid_size * 16 + 6] = ALIVE;
     grid[grid_size * 15 + 7] = ALIVE;
@@ -132,7 +126,7 @@ int EXPORT("loop") loop()
             OGUSleep(5000);
 #endif // __wasm__
 
-        CNFGColor(COLOR(0xff00ffff));
+        CNFGColor(SAND_COLOR);
         draw_cells();
 
         absolute_time = OGGetAbsoluteTime();
