@@ -71,11 +71,13 @@ void setup_window()
 #ifdef __ANDROID__
     CNFGSetupFullscreen(WINDOW_NAME, 0);
     CNFGGetDimensions(&w, &h);
+#elif defined(__wasm__)
+    CNFGGetDimensions(&w, &h);
 #else
-    w = 1024;
-    h = 768;
-    CNFGSetup(WINDOW_NAME, w, h);
+    w = 900;
+    h = 900;
 #endif // __ANDROID__
+    CNFGSetup(WINDOW_NAME, w, h);
 }
 
 int EXPORT("main") main()

@@ -25,6 +25,8 @@ let fullscreen = false;
 
 //Configure WebGL Stuff (allow to be part of global context)
 let canvas = document.getElementById('canvas');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 let wgl = canvas.getContext('webgl');
 if( !wgl )
 {
@@ -160,6 +162,8 @@ let imports = {
 			wgl.clear( wgl.COLOR_BUFFER_BIT | wgl.COLOR_DEPTH_BIT );
 		},
 		CNFGGetDimensions: (pw, ph) => {
+            console.log('width: ' + canvas.width);
+            console.log('height: ' + canvas.height);
 			HEAP16[pw>>1] = canvas.width;
 			HEAP16[ph>>1] = canvas.height;
 		},
