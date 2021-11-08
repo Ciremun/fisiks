@@ -81,9 +81,13 @@ void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
 
 void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
 {
-    controls.lmb_down = mask;
+#ifndef __ANDROID__
+    if (!mask)
+        return;
+#endif
     controls.mouse_x = x;
     controls.mouse_y = y;
+    toggle_cell(x, y, ALIVE);
 }
 
 void HandleDestroy() {}
