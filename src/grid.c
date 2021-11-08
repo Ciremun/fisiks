@@ -8,7 +8,7 @@ void change_grid_size(int new_size)
     next_grid = realloc(next_grid, GRID_SIZE(new_size));
     memset(grid, 0, GRID_SIZE(new_size));
     memset(next_grid, 0, GRID_SIZE(new_size));
-    stbsp_snprintf(message, MAX_MESSAGE_SIZE, "%s: %d", "Grid Size", new_size);
+    stbsp_snprintf(message.content, MAX_MESSAGE_SIZE, "%s: %d", "Grid Size", new_size);
     message_t = (int)OGGetAbsoluteTime();
     change_animation_state(&message_a, FADE_IN);
     grid_size = new_size;

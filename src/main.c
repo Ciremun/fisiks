@@ -51,7 +51,13 @@ int message_t = 0;
 short w, h;
 int cell_width, cell_height;
 double absolute_time;
-char message[MAX_MESSAGE_SIZE];
+
+char message_buffer[MAX_MESSAGE_SIZE];
+
+String message = {
+    .content = message_buffer,
+    .length = 0,
+};
 
 extern Animation message_a;
 extern Animation pause_a;

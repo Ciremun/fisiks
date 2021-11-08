@@ -36,4 +36,10 @@ void print(double idebug);
 
 void draw_text(const char *text, int x, int y, int font_size);
 
+typedef struct
+{
+    u64 length;
+    char *content;
+} String;
+
 #endif // _UTIL_H_

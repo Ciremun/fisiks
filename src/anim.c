@@ -1,6 +1,7 @@
 #include "anim.h"
 
 extern int font_size;
+extern String message;
 
 Animation pause_a = {
     .color = WHITE,
@@ -24,9 +25,10 @@ void change_animation_state(Animation *a, int new_state)
 
 void display_message(char *msg)
 {
-    u64 msg_size = strlen(msg) + 1;
-    memset(message, 0, MAX_MESSAGE_SIZE);
-    memcpy(message, msg, msg_size);
+    u64 message_length = strlen(msg);
+    memset(message.content, 0, MAX_MESSAGE_SIZE);
+    memcpy(message.content, msg, message_length + 1);
+    message.length = message_length;
     message_t = (int)OGGetAbsoluteTime();
     change_animation_state(&message_a, FADE_IN);
 }
@@ -79,8 +81,7 @@ void draw_messages()
             change_animation_state(&message_a, FADE_OUT);
         }
         set_fade_color(&message_a);
-        int message_length = (int)strlen(message);
-        draw_text(message, w / 2 - message_length * 30, 120, font_size);
+        draw_text(message.content, w / 2 - message.length * 30, 120, font_size);
     }
     if (reset_t) {
         if (absolute_time - reset_t <= 1) {
