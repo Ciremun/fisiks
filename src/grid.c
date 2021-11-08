@@ -25,7 +25,6 @@ void draw_cell(int x, int y)
 
 void draw_cells()
 {
-    memcpy(next_grid, grid, GRID_SIZE(grid_size));
     for (int y = 0; y < grid_size; ++y)
         for (int x = 0; x < grid_size; ++x) {
             if (!paused)
@@ -52,7 +51,7 @@ void toggle_cell(int x, int y, int val)
     int cell_x, cell_y;
     cell_index(x, y, &cell_x, &cell_y);
     if (on_grid(cell_x) && on_grid(cell_y))
-        grid[cell_x * grid_size + cell_y] = val;
+        next_grid[cell_x * grid_size + cell_y] = val;
 }
 
 void apply_game_rules(int x, int y)
