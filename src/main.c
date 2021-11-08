@@ -81,11 +81,12 @@ void setup_window()
     CNFGGetDimensions(&w, &h);
 #elif defined(__wasm__)
     CNFGGetDimensions(&w, &h);
+    CNFGSetup(WINDOW_NAME, w, h);
 #else
     w = 900;
     h = 900;
-#endif // __ANDROID__
     CNFGSetup(WINDOW_NAME, w, h);
+#endif // __ANDROID__
 }
 
 int EXPORT("main") main()
@@ -125,8 +126,10 @@ int EXPORT("loop") loop()
         CNFGHandleInput();
 
 #ifndef __wasm__
+#ifndef __ANDROID__
         if (suspended)
             continue;
+#endif // __ANDROID__
         if (!paused)
             OGUSleep(5000);
 #endif // __wasm__
