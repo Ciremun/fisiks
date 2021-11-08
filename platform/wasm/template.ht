@@ -4,8 +4,8 @@
 		<meta charset="UTF-8">
 		<title>fisiks</title>
 		<style>
-			body { background-color: #000000; position: relative; }
-			html { overflow: hidden; width: 100%; height: 100%; }
+			body { background-color: #000000; position: relative; overscroll-behavior: none; }
+			html { overflow: hidden; width: 100%; height: 100%; overscroll-behavior: none; }
 		</style>
 	</head>
 	<body>
