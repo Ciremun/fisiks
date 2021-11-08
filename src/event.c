@@ -85,6 +85,7 @@ void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
     if (!mask)
         return;
 #endif
+    controls.lmb_down = mask;
     controls.mouse_x = x;
     controls.mouse_y = y;
 }
