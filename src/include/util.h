@@ -25,7 +25,6 @@
 
 #ifdef __wasm__
 double OGGetAbsoluteTime();
-static uint32_t SWAPS(uint32_t r);
 u64 fisiks_strlen(const char *s);
 void *fisiks_memset(void *dest, int val, u64 len);
 void *fisiks_memcpy(void *dst, void const *src, u64 size);

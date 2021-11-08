@@ -7,18 +7,6 @@ extern unsigned char __heap_base;
 
 char *heap = (char *)&__heap_base;
 
-static uint32_t SWAPS(uint32_t r)
-{
-    uint32_t ret = (r & 0xFF) << 24;
-    r >>= 8;
-    ret |= (r & 0xff) << 16;
-    r >>= 8;
-    ret |= (r & 0xff) << 8;
-    r >>= 8;
-    ret |= (r & 0xff) << 0;
-    return ret;
-}
-
 u64 fisiks_strlen(const char *s)
 {
     u64 sz = 0;
