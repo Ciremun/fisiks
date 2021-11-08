@@ -5,14 +5,12 @@
         <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		<title>fisiks</title>
 		<style>
-			body { background-color: #000000; position: relative; overscroll-behavior: contain; height: 100%; overflow: hidden; }
+			body { margin: 0; padding: 0; background-color: #000000; position: relative; overscroll-behavior: contain; height: 100%; overflow: hidden; }
 			html { overflow: hidden; width: 100%; height: 100%; overscroll-behavior: contain; height: 100%; }
-            #canvas { align-self: flex-end; }
-            #canvas_div { display: flex; align-items: center; justify-content: center; }
         </style>
 	</head>
 	<body>
-		<div id="canvas_div"><canvas id="canvas"></canvas></div>
+		<canvas id="canvas"></canvas>
 		<script>
 ${JAVASCRIPT_DATA}
 		</script>
