@@ -81,11 +81,7 @@ void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
 
 void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
 {
-#ifndef __ANDROID__
-    if (!mask)
-        return;
-#endif
-    controls.lmb_down = !mask;
+    controls.lmb_down = mask;
     controls.mouse_x = x;
     controls.mouse_y = y;
 }
