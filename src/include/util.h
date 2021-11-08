@@ -16,6 +16,7 @@
 
 #ifdef __wasm__
 #define malloc fisiks_malloc
+#define calloc fisiks_calloc
 #define realloc fisiks_realloc
 #define strlen fisiks_strlen
 #define memset fisiks_memset
@@ -28,8 +29,9 @@ static uint32_t SWAPS(uint32_t r);
 u64 fisiks_strlen(const char *s);
 void *fisiks_memset(void *dest, int val, u64 len);
 void *fisiks_memcpy(void *dst, void const *src, u64 size);
-void *fisiks_malloc(unsigned long long size);
-void *fisiks_realloc(void *old_mem, unsigned long long size);
+void *fisiks_malloc(u64 size);
+void *fisiks_calloc(u64 num, u64 size);
+void *fisiks_realloc(void *old_mem, u64 size);
 void print(double idebug);
 #endif // __wasm__
 

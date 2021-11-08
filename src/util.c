@@ -44,13 +44,18 @@ void *fisiks_memcpy(void *dst, void const *src, u64 size)
     return dst;
 }
 
-void *fisiks_malloc(unsigned long long size)
+void *fisiks_malloc(u64 size)
 {
     heap += size;
     return heap - size;
 }
 
-void *fisiks_realloc(void *old_mem, unsigned long long size)
+void *fisiks_calloc(u64 num, u64 size)
+{
+    return fisiks_malloc(num * size);
+}
+
+void *fisiks_realloc(void *old_mem, u64 size)
 {
 // since we only have a grid
     u64 old_size = GRID_SIZE(grid_size);

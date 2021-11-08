@@ -91,10 +91,8 @@ int EXPORT("main") main()
     cell_width = w / grid_size;
     cell_height = h / grid_size;
 
-    grid = malloc(GRID_SIZE(grid_size));
-    next_grid = malloc(GRID_SIZE(grid_size));
-    memset(grid, 0, GRID_SIZE(grid_size));
-    memset(next_grid, 0, GRID_SIZE(grid_size));
+    grid = calloc(1, GRID_SIZE(grid_size));
+    next_grid = calloc(1, GRID_SIZE(grid_size));
 
     grid[grid_size * 14 + 2] = ALIVE;
     grid[grid_size * 16 + 2] = ALIVE;
