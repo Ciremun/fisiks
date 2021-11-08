@@ -1,6 +1,12 @@
 #include "event.h"
 #include "util.h"
 
+Controls controls = {
+    .mouse_x = -1,
+    .mouse_y = -1,
+    .lmb_down = 0,
+};
+
 void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
 {
     if (bDown)
@@ -67,8 +73,10 @@ void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
             return;
         }
 #endif // __ANDROID__
-        toggle_cell(x, y, ALIVE);
     }
+    controls.lmb_down = bDown;
+    controls.mouse_x = x;
+    controls.mouse_y = y;
 }
 
 void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
@@ -77,7 +85,8 @@ void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
     if (!mask)
         return;
 #endif
-    toggle_cell(x, y, ALIVE);
+    controls.mouse_x = x;
+    controls.mouse_y = y;
 }
 
 void HandleDestroy() {}

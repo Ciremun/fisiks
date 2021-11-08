@@ -20,6 +20,7 @@
 #define CNFG_IMPLEMENTATION
 #include "rawdraw_sf.h"
 
+#include "event.h"
 #include "anim.h"
 #include "grid.h"
 #include "color.h"
@@ -54,6 +55,7 @@ char message[MAX_MESSAGE_SIZE];
 
 extern Animation message_a;
 extern Animation pause_a;
+extern Controls controls;
 
 volatile int suspended;
 
@@ -124,6 +126,9 @@ int EXPORT("loop") loop()
 #endif // __wasm__
 
         CNFGColor(SAND_COLOR);
+
+        if (controls.lmb_down)
+            toggle_cell(controls.mouse_x, controls.mouse_y, ALIVE);
         draw_cells();
 
         absolute_time = OGGetAbsoluteTime();
