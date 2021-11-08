@@ -277,7 +277,7 @@ if( RAWDRAW_NEED_BLITTER )
 			if( instance.exports.HandleMotion )
 			{
 				canvas.addEventListener('mousemove', e => { instance.exports.HandleMotion( e.offsetX, e.offsetY, e.buttons ); } );
-				canvas.addEventListener('touchmove', e => { instance.exports.HandleMotion( e.touches[0].clientX, e.touches[0].clientY, 1 ); } );
+				canvas.addEventListener('touchmove', e => { e.preventDefault(); instance.exports.HandleMotion( e.touches[0].clientX, e.touches[0].clientY, 1 ); } );
 			}
 
 			if( instance.exports.HandleButton )
