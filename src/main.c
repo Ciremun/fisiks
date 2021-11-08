@@ -126,10 +126,8 @@ int EXPORT("loop") loop()
         CNFGHandleInput();
 
 #ifndef __wasm__
-#ifndef __ANDROID__
         if (suspended)
             continue;
-#endif // __ANDROID__
         if (!paused)
             OGUSleep(5000);
 #endif // __wasm__
