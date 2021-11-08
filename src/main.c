@@ -85,9 +85,6 @@ int EXPORT("main") main()
     CNFGBGColor = BLACK;
     setup_window();
 
-    pause_a.color = WHITE;
-    message_a.color = WHITE;
-
     cell_width = w / grid_size;
     cell_height = h / grid_size;
 

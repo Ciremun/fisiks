@@ -3,14 +3,14 @@
 extern int font_size;
 
 Animation pause_a = {
-    .color = 0,
+    .color = WHITE,
     .duration = .5,
     .start = 0.0,
     .state = HIDDEN,
 };
 
 Animation message_a = {
-    .color = 0,
+    .color = WHITE,
     .duration = 1.0,
     .start = 0.0,
     .state = HIDDEN,
