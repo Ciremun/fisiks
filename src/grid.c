@@ -1,5 +1,6 @@
 #include "grid.h"
 
+// TODO: null check
 void change_grid_size(int new_size)
 {
     cell_width = w / new_size;

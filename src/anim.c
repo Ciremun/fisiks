@@ -81,7 +81,7 @@ void draw_messages()
             change_animation_state(&message_a, FADE_OUT);
         }
         set_fade_color(&message_a);
-        draw_text(message.content, w / 2 - message.length * 30, 120, font_size);
+        draw_text(message.content, w / 2 - (int)message.length * 30, 120, font_size);
     }
     if (reset_t) {
         if (absolute_time - reset_t <= 1) {

@@ -30,6 +30,7 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
             break;
         case R_KEY:
             memset(grid, 0, GRID_SIZE(grid_size));
+            memset(next_grid, 0, GRID_SIZE(grid_size));
             reset_t = (int)OGGetAbsoluteTime();
             break;
         case MINUS_KEY: {
