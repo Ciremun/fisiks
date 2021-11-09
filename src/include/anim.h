@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+#define FADE_IN 0
+#define FADE_OUT 1
+#define IDLE 2
+#define HIDDEN 3
+
 typedef struct {
     uint32_t color;
     double duration;

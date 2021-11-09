@@ -2,8 +2,10 @@
 #define _KEYCODES_H_
 
 #define SPACE_KEY 32
+#define ZERO_KEY 48
 #define ONE_KEY 49
 #define TWO_KEY 50
+#define NINE_KEY 57
 
 #ifdef __wasm__
 #define R_KEY 82

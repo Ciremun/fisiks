@@ -7,7 +7,14 @@
 
 #include "typedef.h"
 
-#define GRID_SIZE(gs) (sizeof(int) * gs * gs)
+#ifndef min
+#define min(x, y) ((x) < (y) ? (x) : (y))
+#endif // min
+
+#ifndef max
+#define max(x, y) ((x) > (y) ? (x) : (y))
+#endif // min
+
 #ifdef __wasm__
 #define EXPORT(s) __attribute__((export_name(s)))
 #else
@@ -36,8 +43,7 @@ void print(double idebug);
 
 void draw_text(const char *text, int x, int y, int font_size);
 
-typedef struct
-{
+typedef struct {
     u64 length;
     char *content;
 } String;

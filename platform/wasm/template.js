@@ -25,8 +25,8 @@ let fullscreen = false;
 
 //Configure WebGL Stuff (allow to be part of global context)
 let canvas = document.getElementById('canvas');
-canvas.width = Math.min(window.innerWidth, window.innerHeight);
-canvas.height = canvas.width;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 let wgl = canvas.getContext('webgl');
 if( !wgl )
 {
@@ -176,8 +176,6 @@ let imports = {
 		sinf : Math.sin,
 		cosf : Math.cos,
 		tanf : Math.tan,
-        max: Math.max,
-        min: Math.min,
 
 		//Quick-and-dirty debug.
 		print: console.log,

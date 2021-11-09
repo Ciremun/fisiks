@@ -12,8 +12,7 @@ void HandleSuspend();
 void HandleResume();
 #endif // __wasm__
 
-typedef struct
-{
+typedef struct {
     int mouse_x;
     int mouse_y;
     int lmb_down;

@@ -2,7 +2,6 @@
 
 #ifdef __wasm__
 
-extern int grid_size;
 extern unsigned char __heap_base;
 
 char *heap = (char *)&__heap_base;
@@ -46,7 +45,7 @@ void *fisiks_calloc(u64 num, u64 size)
 void *fisiks_realloc(void *old_mem, u64 size)
 {
 // since we only have a grid
-    u64 old_size = GRID_SIZE(grid_size);
+    u64 old_size = GRID_SIZE(grid);
     if (size <= old_size) {
         heap -= old_size;
         return heap;

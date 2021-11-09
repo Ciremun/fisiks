@@ -11,6 +11,24 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
 {
     if (bDown)
         switch (keycode) {
+        case NINE_KEY: {
+            if (grid_size_change_step - 1 <= 0) {
+                display_message("too smol grid step");
+                return;
+            }
+            grid_size_change_step--;
+            stbsp_snprintf(message.content, MAX_MESSAGE_SIZE, "Grid Step: %d", grid_size_change_step);
+            message_t = (int)OGGetAbsoluteTime();
+            change_animation_state(&message_a, FADE_IN);
+        }
+        break;
+        case ZERO_KEY: {
+            grid_size_change_step++;
+            stbsp_snprintf(message.content, MAX_MESSAGE_SIZE, "Grid Step: %d", grid_size_change_step);
+            message_t = (int)OGGetAbsoluteTime();
+            change_animation_state(&message_a, FADE_IN);
+        }
+        break;
         case SPACE_KEY:
             paused = !paused;
             switch (pause_a.state) {
@@ -29,23 +47,25 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
             }
             break;
         case R_KEY:
-            memset(grid, 0, GRID_SIZE(grid_size));
-            memset(next_grid, 0, GRID_SIZE(grid_size));
+            memset(grid.data, 0, GRID_SIZE(grid));
+            memset(next_grid_data, 0, GRID_SIZE(grid));
             reset_t = (int)OGGetAbsoluteTime();
             break;
         case MINUS_KEY: {
-            int new_size = grid_size - GRID_SIZE_CHANGE_STEP;
-            if (new_size <= 0) {
+            int new_rows = grid.rows - grid_size_change_step;
+            int new_cols = grid.cols - grid_size_change_step;
+            if (new_rows <= 0 || new_cols <= 0) {
+                display_message("too smol");
                 return;
             }
-            change_grid_size(new_size);
+            change_grid_size(new_rows, new_cols);
         }
         break;
 #if !defined(_WIN32) && !defined(__wasm__)
         case EQ_KEY:
 #endif
         case PLUS_KEY:
-            change_grid_size(grid_size + GRID_SIZE_CHANGE_STEP);
+            change_grid_size(grid.rows + grid_size_change_step, grid.cols + grid_size_change_step);
             break;
         }
 #ifdef __ANDROID__
