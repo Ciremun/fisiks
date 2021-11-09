@@ -47,8 +47,8 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
             }
             break;
         case R_KEY:
-            memset(grid.data, 0, GRID_SIZE(grid));
-            memset(next_grid_data, 0, GRID_SIZE(grid));
+            memset(grid.cells, 0, GRID_SIZE(grid));
+            memset(next_grid.cells, 0, GRID_SIZE(grid));
             reset_t = (int)OGGetAbsoluteTime();
             break;
         case MINUS_KEY: {
@@ -108,7 +108,7 @@ void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
 #endif
     controls.mouse_x = x;
     controls.mouse_y = y;
-    toggle_cell(x, y, ALIVE);
+    toggle_cell(ALIVE, x, y);
 }
 
 void HandleDestroy() {}

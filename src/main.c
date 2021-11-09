@@ -31,7 +31,6 @@
 #define WINDOW_NAME "fisiks"
 #define MAX_MESSAGE_SIZE 256
 
-int *next_grid_data = 0;
 int paused = 0;
 int reset_t = 0;
 int message_t = 0;
@@ -51,6 +50,7 @@ extern Animation message_a;
 extern Animation pause_a;
 extern Controls controls;
 extern Grid grid;
+extern Grid next_grid;
 
 volatile int suspended;
 
@@ -72,8 +72,8 @@ void setup_window()
     CNFGGetDimensions(&w, &h);
     CNFGSetup(WINDOW_NAME, w, h);
 #else
-    w = 1000;
-    h = 500;
+    w = 1600;
+    h = 800;
     CNFGSetup(WINDOW_NAME, w, h);
 #endif // __ANDROID__
 }
@@ -87,19 +87,36 @@ int EXPORT("main") main()
     grid.rows = w / cell_width;
     grid.cols = h / cell_height;
 
-    grid.data = calloc(1, GRID_SIZE(grid));
-    next_grid_data = calloc(1, GRID_SIZE(grid));
+    grid.cells = calloc(1, GRID_SIZE(grid));
+    next_grid.cells = calloc(1, GRID_SIZE(grid));
 
-    grid.data[grid.cols * 14 + 2] = ALIVE;
-    grid.data[grid.cols * 16 + 2] = ALIVE;
-    grid.data[grid.cols * 15 + 3] = ALIVE;
-    grid.data[grid.cols * 14 + 4] = ALIVE;
-    grid.data[grid.cols * 16 + 4] = ALIVE;
-
-    grid.data[grid.cols * 14 + 6] = ALIVE;
-    grid.data[grid.cols * 16 + 6] = ALIVE;
-    grid.data[grid.cols * 15 + 7] = ALIVE;
-    grid.data[grid.cols * 15 + 8] = ALIVE;
+    next_grid.cells[grid.cols * 14 + 2] = (Cell) {
+        .state = ALIVE, .color = SAND_COLOR
+    };
+    next_grid.cells[grid.cols * 16 + 2] = (Cell) {
+        .state = ALIVE, .color = SAND_COLOR
+    };
+    next_grid.cells[grid.cols * 15 + 3] = (Cell) {
+        .state = ALIVE, .color = SAND_COLOR
+    };
+    next_grid.cells[grid.cols * 14 + 4] = (Cell) {
+        .state = ALIVE, .color = SAND_COLOR
+    };
+    next_grid.cells[grid.cols * 16 + 4] = (Cell) {
+        .state = ALIVE, .color = SAND_COLOR
+    };
+    next_grid.cells[grid.cols * 14 + 6] = (Cell) {
+        .state = ALIVE, .color = SAND_COLOR
+    };
+    next_grid.cells[grid.cols * 16 + 6] = (Cell) {
+        .state = ALIVE, .color = SAND_COLOR
+    };
+    next_grid.cells[grid.cols * 15 + 7] = (Cell) {
+        .state = ALIVE, .color = SAND_COLOR
+    };
+    next_grid.cells[grid.cols * 15 + 8] = (Cell) {
+        .state = ALIVE, .color = SAND_COLOR
+    };
 
     display_message("fisiks");
 
@@ -122,10 +139,8 @@ int EXPORT("loop") loop()
             OGUSleep(5000);
 #endif // __wasm__
 
-        CNFGColor(SAND_COLOR);
-
         if (controls.lmb_down)
-            toggle_cell(controls.mouse_x, controls.mouse_y, ALIVE);
+            toggle_cell(ALIVE, controls.mouse_x, controls.mouse_y);
 
         draw_cells();
 
