@@ -38,8 +38,14 @@ void draw_cells()
         {
             if (!paused)
                 apply_game_rules(x, y);
-            if (grid.cells[grid.cols * x + y].state == ALIVE || grid.cells[grid.cols * x + y].state == STATIC)
+            switch (grid.cells[grid.cols * x + y].state)
+            {
+            case ALIVE:
+            case STATIC:
                 draw_cell(grid.cells[grid.cols * x + y], x, y);
+            default:
+                break;
+            }
         }
     }
     memcpy(grid.cells, next_grid.cells, GRID_SIZE(grid));
