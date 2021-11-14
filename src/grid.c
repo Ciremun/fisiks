@@ -53,12 +53,12 @@ void cell_index(int x, int y, int *cell_x, int *cell_y)
 
 int col_exists(int cell_x)
 {
-    return cell_x < grid.rows;
+    return cell_x >= 0 && cell_x < grid.rows;
 }
 
 int row_exists(int cell_y)
 {
-    return cell_y < grid.cols;
+    return cell_y >= 0 && cell_y < grid.cols;
 }
 
 void toggle_cell(CellState state, int x, int y)
@@ -90,7 +90,7 @@ void apply_game_rules(int x, int y)
             else
             {
                 // bottom left cell is free
-                if (grid.cells[grid.cols * (x - 1) + y + 1].state == EMPTY)
+                if (col_exists(x - 1) && grid.cells[grid.cols * (x - 1) + y + 1].state == EMPTY)
                 {
                     next_grid.cells[grid.cols * x + y].state = EMPTY;
                     next_grid.cells[grid.cols * (x - 1) + y + 1] = (Cell)
@@ -100,7 +100,7 @@ void apply_game_rules(int x, int y)
                     };
                 }
                 // bottom right cell is free
-                else if (grid.cells[grid.cols * (x + 1) + y + 1].state == EMPTY)
+                else if (col_exists(x + 1) && grid.cells[grid.cols * (x + 1) + y + 1].state == EMPTY)
                 {
                     next_grid.cells[grid.cols * x + y].state = EMPTY;
                     next_grid.cells[grid.cols * (x + 1) + y + 1] = (Cell)
