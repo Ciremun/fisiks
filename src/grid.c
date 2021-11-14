@@ -73,7 +73,7 @@ void apply_game_rules(int x, int y)
     if (row_exists(y + 1)) {
         if (grid.cells[grid.cols * x + y].state == ALIVE) {
             // sand
-            if (next_grid.cells[grid.cols * x + y + 1].state == EMPTY) {
+            if (grid.cells[grid.cols * x + y + 1].state == EMPTY) {
                 next_grid.cells[grid.cols * x + y].state = EMPTY;
                 next_grid.cells[grid.cols * x + y + 1] = (Cell) {
                     .state = grid.cells[grid.cols * x + y].state, .color = SAND_COLOR
@@ -88,8 +88,8 @@ void apply_game_rules(int x, int y)
                 }
                 // bottom right cell is free
                 else if (grid.cells[grid.cols * (x + 1) + y + 1].state == EMPTY) {
-                        next_grid.cells[grid.cols * x + y].state = EMPTY;
-                        next_grid.cells[grid.cols * (x + 1) + y + 1] = (Cell) {
+                    next_grid.cells[grid.cols * x + y].state = EMPTY;
+                    next_grid.cells[grid.cols * (x + 1) + y + 1] = (Cell) {
                         .state = ALIVE, .color = SAND_COLOR
                     };
                 }
