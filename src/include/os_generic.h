@@ -163,7 +163,8 @@ OSG_PREFIX double OGGetAbsoluteTime()
     static LARGE_INTEGER lpf;
     LARGE_INTEGER li;
 
-    if( !lpf.QuadPart ) {
+    if( !lpf.QuadPart )
+    {
         QueryPerformanceFrequency( &lpf );
     }
 
@@ -249,7 +250,8 @@ OSG_PREFIX int OGGetSema( og_sema_t os )
         PULONG ReturnLength OPTIONAL
     );
 
-    typedef struct _SEMAPHORE_BASIC_INFORMATION {
+    typedef struct _SEMAPHORE_BASIC_INFORMATION
+    {
         ULONG CurrentCount;
         ULONG MaximumCount;
     } SEMAPHORE_BASIC_INFORMATION;
@@ -259,9 +261,11 @@ OSG_PREFIX int OGGetSema( og_sema_t os )
     SEMAPHORE_BASIC_INFORMATION BasicInfo;
     NTSTATUS Status;
 
-    if( !NtQuerySemaphore ) {
+    if( !NtQuerySemaphore )
+    {
         NtQuerySemaphore = (_NtQuerySemaphore)GetProcAddress (GetModuleHandle ("ntdll.dll"), "NtQuerySemaphore");
-        if( !NtQuerySemaphore ) {
+        if( !NtQuerySemaphore )
+        {
             return -1;
         }
     }
@@ -270,7 +274,8 @@ OSG_PREFIX int OGGetSema( og_sema_t os )
     Status = NtQuerySemaphore (sem, 0 /*SemaphoreBasicInformation*/,
                                &BasicInfo, sizeof (SEMAPHORE_BASIC_INFORMATION), NULL);
 
-    if (Status == ERROR_SUCCESS) {
+    if (Status == ERROR_SUCCESS)
+    {
         return BasicInfo.CurrentCount;
     }
 
@@ -353,7 +358,8 @@ OSG_PREFIX double OGGetFileTime( const char * file )
 
     int r = stat( file, &buff );
 
-    if( r < 0 ) {
+    if( r < 0 )
+    {
         return -1;
     }
 
@@ -367,7 +373,8 @@ OSG_PREFIX og_thread_t OGCreateThread( void * (routine)( void * ), void * parame
     pthread_t * ret = (pthread_t *)malloc( sizeof( pthread_t ) );
     if( !ret ) return 0;
     int r = pthread_create( ret, 0, routine, parameter );
-    if( r ) {
+    if( r )
+    {
         free( ret );
         return 0;
     }
@@ -377,7 +384,8 @@ OSG_PREFIX og_thread_t OGCreateThread( void * (routine)( void * ), void * parame
 OSG_PREFIX void * OGJoinThread( og_thread_t ot )
 {
     void * retval;
-    if( !ot ) {
+    if( !ot )
+    {
         return 0;
     }
     pthread_join( *(pthread_t*)ot, &retval );
@@ -388,7 +396,8 @@ OSG_PREFIX void * OGJoinThread( og_thread_t ot )
 
 OSG_PREFIX void OGCancelThread( og_thread_t ot )
 {
-    if( !ot ) {
+    if( !ot )
+    {
         return;
     }
 #ifdef ANDROID
@@ -416,7 +425,8 @@ OSG_PREFIX og_mutex_t OGCreateMutex()
 
 OSG_PREFIX void OGLockMutex( og_mutex_t om )
 {
-    if( !om ) {
+    if( !om )
+    {
         return;
     }
     pthread_mutex_lock( (pthread_mutex_t*)om );
@@ -424,7 +434,8 @@ OSG_PREFIX void OGLockMutex( og_mutex_t om )
 
 OSG_PREFIX void OGUnlockMutex( og_mutex_t om )
 {
-    if( !om ) {
+    if( !om )
+    {
         return;
     }
     pthread_mutex_unlock( (pthread_mutex_t*)om );
@@ -432,7 +443,8 @@ OSG_PREFIX void OGUnlockMutex( og_mutex_t om )
 
 OSG_PREFIX void OGDeleteMutex( og_mutex_t om )
 {
-    if( !om ) {
+    if( !om )
+    {
         return;
     }
 

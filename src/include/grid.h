@@ -5,18 +5,21 @@
 
 #define GRID_SIZE(gs) (sizeof(Cell) * grid.rows * grid.cols)
 
-typedef enum {
+typedef enum
+{
     EMPTY = 0,
     ALIVE,
     STATIC,
 } CellState;
 
-typedef struct {
+typedef struct
+{
     uint32_t color;
     CellState state;
 } Cell;
 
-typedef struct {
+typedef struct
+{
     int rows;
     int cols;
     Cell *cells;

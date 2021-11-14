@@ -57,7 +57,8 @@ Usually tested combinations:
 #endif
 #endif
 
-typedef struct {
+typedef struct
+{
     short x, y;
 } RDPoint;
 
@@ -366,7 +367,8 @@ void HandleSuspend();
 #include <stdint.h>
 #include <malloc.h>
 
-typedef struct {
+typedef struct
+{
     uint32_t state[5];
     uint32_t count[2];
     uint8_t  buffer[64];
@@ -394,14 +396,16 @@ void static RD_SHA1_Final(uint8_t digest[RD_SHA1_DIGEST_SIZE],RD_SHA1_CTX* conte
 //Format:
 //  [FILE NAME (24)] [Start (4)] [Len (4)]
 //  NOTE: Filename must be null-terminated within the 24.
-struct MFSFileEntry {
+struct MFSFileEntry
+{
     char name[MFS_FILENAMELEN];
     uint32_t start;  //From beginning of mfs thing.
     uint32_t len;
 };
 
 
-struct MFSFileInfo {
+struct MFSFileInfo
+{
     uint32_t filelen;
 #ifdef USE_RAM_MFS
     uint32_t offset;
@@ -493,7 +497,8 @@ int EndTCPWrite( int socket );
 
 #define HTTP_WAIT_CLOSE        15
 
-struct HTTPConnection {
+struct HTTPConnection
+{
     uint8_t  state:4;
     uint8_t  state_deets;
 
@@ -503,12 +508,15 @@ struct HTTPConnection {
     uint8_t  is_dynamic:1;
     uint16_t timeout;
 
-    union data_t {
+    union data_t
+    {
         struct MFSFileInfo filedescriptor;
-        struct UserData {
+        struct UserData
+        {
             uint16_t a, b, c;
         } user;
-        struct UserDataPtr {
+        struct UserDataPtr
+        {
             void * v;
         } userptr;
     } data;
@@ -606,51 +614,64 @@ void  HTTPGotData( )
 {
     uint8_t c;
     curhttp->timeout = 0;
-    while( curlen-- ) {
+    while( curlen-- )
+    {
         c = HTTPPOP;
         //	sendhex2( h->state ); sendchr( ' ' );
 
-        switch( curhttp->state ) {
+        switch( curhttp->state )
+        {
         case HTTP_STATE_WAIT_METHOD:
-            if( c == ' ' ) {
+            if( c == ' ' )
+            {
                 curhttp->state = HTTP_STATE_WAIT_PATH;
                 curhttp->state_deets = 0;
             }
             break;
         case HTTP_STATE_WAIT_PATH:
             curhttp->pathbuffer[curhttp->state_deets++] = c;
-            if( curhttp->state_deets == MAX_HTTP_PATHLEN ) {
+            if( curhttp->state_deets == MAX_HTTP_PATHLEN )
+            {
                 curhttp->state_deets--;
             }
 
-            if( c == ' ' ) {
+            if( c == ' ' )
+            {
                 //Tricky: If we're a websocket, we need the whole header.
                 curhttp->pathbuffer[curhttp->state_deets-1] = 0;
                 curhttp->state_deets = 0;
 
-                if( strncmp( (const char*)curhttp->pathbuffer, "/d/ws", 5 ) == 0 ) {
+                if( strncmp( (const char*)curhttp->pathbuffer, "/d/ws", 5 ) == 0 )
+                {
                     curhttp->state = HTTP_STATE_DATA_WEBSOCKET;
                     curhttp->state_deets = 0;
-                } else {
+                }
+                else
+                {
                     curhttp->state = HTTP_STATE_WAIT_PROTO;
                 }
             }
             break;
         case HTTP_STATE_WAIT_PROTO:
-            if( c == '\n' ) {
+            if( c == '\n' )
+            {
                 curhttp->state = HTTP_STATE_WAIT_FLAG;
             }
             break;
         case HTTP_STATE_WAIT_FLAG:
-            if( c == '\n' ) {
+            if( c == '\n' )
+            {
                 curhttp->state = HTTP_STATE_DATA_XFER;
                 InternalStartHTTP( );
-            } else if( c != '\r' ) {
+            }
+            else if( c != '\r' )
+            {
                 curhttp->state = HTTP_STATE_WAIT_INFLAG;
             }
             break;
         case HTTP_STATE_WAIT_INFLAG:
-            if( c == '\n' ) {
+            if( c == '\n' )
+            {
                 curhttp->state = HTTP_STATE_WAIT_FLAG;
                 curhttp->state_deets = 0;
             }
@@ -663,9 +684,12 @@ void  HTTPGotData( )
             WebSocketGotData( c );
             break;
         case HTTP_WAIT_CLOSE:
-            if( curhttp->keep_alive ) {
+            if( curhttp->keep_alive )
+            {
                 curhttp->state = HTTP_STATE_WAIT_METHOD;
-            } else {
+            }
+            else
+            {
                 HTTPClose( );
             }
             break;
@@ -679,39 +703,51 @@ void  HTTPGotData( )
 
 static void DoHTTP( uint8_t timed )
 {
-    switch( curhttp->state ) {
+    switch( curhttp->state )
+    {
     case HTTP_STATE_NONE: //do nothing if no state.
         curhttp->send_pending = 0;
         break;
     case HTTP_STATE_DATA_XFER:
         curhttp->send_pending = 1;
-        if( TCPCanSend( curhttp->socket, 1300 ) ) { //TCPDoneSend
-            if( curhttp->is_dynamic ) {
+        if( TCPCanSend( curhttp->socket, 1300 ) )   //TCPDoneSend
+        {
+            if( curhttp->is_dynamic )
+            {
                 HTTPCustomCallback( );
-            } else {
+            }
+            else
+            {
                 HTTPHandleInternalCallback( );
             }
         }
         break;
     case HTTP_WAIT_CLOSE:
         curhttp->send_pending = 0;
-        if( TCPDoneSend( curhttp->socket ) ) {
-            if( curhttp->keep_alive ) {
+        if( TCPDoneSend( curhttp->socket ) )
+        {
+            if( curhttp->keep_alive )
+            {
                 curhttp->state = HTTP_STATE_WAIT_METHOD;
-            } else {
+            }
+            else
+            {
                 HTTPClose( );
             }
         }
         break;
     case HTTP_STATE_DATA_WEBSOCKET:
         curhttp->send_pending = 0;
-        if( TCPCanSend( curhttp->socket, 1300 ) ) { //TCPDoneSend
+        if( TCPCanSend( curhttp->socket, 1300 ) )   //TCPDoneSend
+        {
             WebSocketTickInternal();
         }
         break;
     default:
-        if( timed ) {
-            if( curhttp->timeout++ > HTTP_SERVER_TIMEOUT ) {
+        if( timed )
+        {
+            if( curhttp->timeout++ > HTTP_SERVER_TIMEOUT )
+            {
                 HTTPClose( );
             }
         }
@@ -721,8 +757,10 @@ static void DoHTTP( uint8_t timed )
 void  HTTPTick( uint8_t timed )
 {
     uint8_t i;
-    for( i = 0; i < HTTP_CONNECTIONS; i++ ) {
-        if( curhttp ) {
+    for( i = 0; i < HTTP_CONNECTIONS; i++ )
+    {
+        if( curhttp )
+        {
             HTDEBUG( "HTTPRXQ\n" );
             break;
         }
@@ -736,18 +774,21 @@ void  HTTPHandleInternalCallback( )
 {
     uint16_t i, bytestoread;
 
-    if( curhttp->isdone ) {
+    if( curhttp->isdone )
+    {
         HTTPClose( );
         return;
     }
-    if( curhttp->is404 ) {
+    if( curhttp->is404 )
+    {
         DataStartPacket();
         PushString("HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\nFile not found.");
         EndTCPWrite( curhttp->socket );
         curhttp->isdone = 1;
         return;
     }
-    if( curhttp->isfirst ) {
+    if( curhttp->isfirst )
+    {
         char stto[10];
         uint8_t slen = strlen( curhttp->pathbuffer );
         const char * k;
@@ -760,12 +801,15 @@ void  HTTPHandleInternalCallback( )
         CUSTOM_HTTPHEADER_CODE
 #endif
 
-        if( curhttp->bytesleft < 0xfffffffe ) {
+        if( curhttp->bytesleft < 0xfffffffe )
+        {
             PushString("Connection: "ISKEEPALIVE"\r\nContent-Length: ");
             Uint32To10Str( stto, curhttp->bytesleft );
             PushBlob( stto, strlen( stto ) );
             curhttp->keep_alive = 1;
-        } else {
+        }
+        else
+        {
             PushString("Connection: close");
             curhttp->keep_alive = 0;
         }
@@ -795,7 +839,8 @@ void  HTTPHandleInternalCallback( )
 
     DataStartPacket();
 
-    for( i = 0; i < 2 && curhttp->bytesleft; i++ ) {
+    for( i = 0; i < 2 && curhttp->bytesleft; i++ )
+    {
         int bpt = curhttp->bytesleft;
         if( bpt > MFS_SECTOR ) bpt = MFS_SECTOR;
         curhttp->bytesleft = MFSReadSector( databuff_ptr, &curhttp->data.filedescriptor );
@@ -819,7 +864,8 @@ void InternalStartHTTP( )
     if( curhttp->pathbuffer[0] == '/' )
         path++;
 
-    if( path[0] == 'd' && path[1] == '/' ) {
+    if( path[0] == 'd' && path[1] == '/' )
+    {
         curhttp->is_dynamic = 1;
         curhttp->isfirst = 1;
         curhttp->isdone = 0;
@@ -828,7 +874,8 @@ void InternalStartHTTP( )
         return;
     }
 
-    if( !path[0] ) {
+    if( !path[0] )
+    {
         path = "index.html";
     }
 
@@ -838,14 +885,18 @@ void InternalStartHTTP( )
     i = MFSOpenFile( path, &curhttp->data.filedescriptor );
     curhttp->bytessofar = 0;
 
-    if( i < 0 ) {
+    if( i < 0 )
+    {
         HTDEBUG( "404(%s)\n", path );
         curhttp->is404 = 1;
         curhttp->isfirst = 1;
         curhttp->isdone = 0;
         curhttp->is_dynamic = 0;
-    } else {
-        if( i == 99 ) {
+    }
+    else
+    {
+        if( i == 99 )
+        {
             curhttp->is_gzip = 1;
         }
         curhttp->isfirst = 1;
@@ -861,7 +912,8 @@ void InternalStartHTTP( )
 void http_disconnetcb(int conn )
 {
     int r = conn;
-    if( r>=0 ) {
+    if( r>=0 )
+    {
         if( !HTTPConnections[r].is_dynamic ) MFSClose( &HTTPConnections[r].data.filedescriptor );
         HTTPConnections[r].state = 0;
     }
@@ -874,7 +926,8 @@ void http_recvcb(int conn, char *pusrdata, unsigned short length)
     //Though it might be possible for this to interrupt the other
     //tick task, I don't know if this is actually a probelem.
     //I'm adding this back-up-the-register just in case.
-    if( curhttp ) {
+    if( curhttp )
+    {
         HTDEBUG( "Unexpected Race Condition\n" );
         return;
     }
@@ -891,14 +944,17 @@ int httpserver_connectcb( int socket )
 {
     int i;
 
-    for( i = 0; i < HTTP_CONNECTIONS; i++ ) {
-        if( HTTPConnections[i].state == 0 ) {
+    for( i = 0; i < HTTP_CONNECTIONS; i++ )
+    {
+        if( HTTPConnections[i].state == 0 )
+        {
             HTTPConnections[i].socket = socket;
             HTTPConnections[i].state = HTTP_STATE_WAIT_METHOD;
             break;
         }
     }
-    if( i == HTTP_CONNECTIONS ) {
+    if( i == HTTP_CONNECTIONS )
+    {
 #ifndef USE_RAM_MFS
         HTTPConnections[i].data.filedescriptor.file = 0;
 #endif
@@ -917,18 +973,27 @@ int  URLDecode( char * decodeinto, int maxlen, const char * buf )
 {
     int i = 0;
 
-    for( ; buf && *buf; buf++ ) {
+    for( ; buf && *buf; buf++ )
+    {
         char c = *buf;
-        if( c == '+' ) {
+        if( c == '+' )
+        {
             decodeinto[i++] = ' ';
-        } else if( c == '?' || c == '&' ) {
+        }
+        else if( c == '?' || c == '&' )
+        {
             break;
-        } else if( c == '%' ) {
-            if( *(buf+1) && *(buf+2) ) {
+        }
+        else if( c == '%' )
+        {
+            if( *(buf+1) && *(buf+2) )
+            {
                 decodeinto[i++] = hex2byte( buf+1 );
                 buf += 2;
             }
-        } else {
+        }
+        else
+        {
             decodeinto[i++] = c;
         }
         if( i >= maxlen -1 )  break;
@@ -945,8 +1010,10 @@ int  URLDecode( char * decodeinto, int maxlen, const char * buf )
 
 void  WebSocketGotData( uint8_t c )
 {
-    switch( curhttp->state_deets ) {
-    case 0: {
+    switch( curhttp->state_deets )
+    {
+    case 0:
+    {
         int i = 0;
         char inkey[120];
         unsigned char hash[RD_SHA1_HASH_LEN];
@@ -954,15 +1021,18 @@ void  WebSocketGotData( uint8_t c )
         int inkeylen = 0;
 
         curhttp->is_dynamic = 1;
-        while( curlen > 20 ) {
+        while( curlen > 20 )
+        {
             curdata++;
             curlen--;
-            if( strncmp( curdata, "Sec-WebSocket-Key: ", 19 ) == 0 ) {
+            if( strncmp( curdata, "Sec-WebSocket-Key: ", 19 ) == 0 )
+            {
                 break;
             }
         }
 
-        if( curlen <= 21 ) {
+        if( curlen <= 21 )
+        {
             HTDEBUG( "No websocket key found.\n" );
             curhttp->state = HTTP_WAIT_CLOSE;
             return;
@@ -976,28 +1046,33 @@ void  WebSocketGotData( uint8_t c )
 #define WS_KEY "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 #define WS_RETKEY_SIZEM1 32
 
-        while( curlen > 1 ) {
+        while( curlen > 1 )
+        {
             uint8_t lc = *(curdata++);
             inkey[i] = lc;
             curlen--;
-            if( lc == '\r' ) {
+            if( lc == '\r' )
+            {
                 inkey[i] = 0;
                 break;
             }
             i++;
-            if( i >= sizeof( inkey ) - WS_KEY_LEN - 5 ) {
+            if( i >= sizeof( inkey ) - WS_KEY_LEN - 5 )
+            {
                 HTDEBUG( "Websocket key too big.\n" );
                 curhttp->state = HTTP_WAIT_CLOSE;
                 return;
             }
         }
-        if( curlen <= 1 ) {
+        if( curlen <= 1 )
+        {
             HTDEBUG( "Invalid websocket key found.\n" );
             curhttp->state = HTTP_WAIT_CLOSE;
             return;
         }
 
-        if( i + WS_KEY_LEN + 1 >= sizeof( inkey ) ) {
+        if( i + WS_KEY_LEN + 1 >= sizeof( inkey ) )
+        {
             HTDEBUG( "WSKEY Too Big.\n" );
             curhttp->state = HTTP_WAIT_CLOSE;
             return;
@@ -1034,10 +1109,12 @@ void  WebSocketGotData( uint8_t c )
         if( c == '\n' ) curhttp->state_deets = 4;
         else curhttp->state_deets = 1;
         break;
-    case 5: { //Established connection.
+    case 5:   //Established connection.
+    {
         //XXX TODO: Seems to malfunction on large-ish packets.  I know it has problems with 140-byte payloads.
 
-        do {
+        do
+        {
             if( curlen < 5 ) //Can't interpret packet.
                 break;
 
@@ -1046,13 +1123,15 @@ void  WebSocketGotData( uint8_t c )
             uint16_t payloadlen = *(curdata++);
 
             curlen--;
-            if( !(payloadlen & 0x80) ) {
+            if( !(payloadlen & 0x80) )
+            {
                 HTDEBUG( "Unmasked packet (%d)\n", payloadlen );
                 curhttp->state = HTTP_WAIT_CLOSE;
                 break;
             }
 
-            if( opcode == 128 ) {
+            if( opcode == 128 )
+            {
                 //Close connection.
                 //HTDEBUG( "CLOSE\n" );
                 //curhttp->state = HTTP_WAIT_CLOSE;
@@ -1060,13 +1139,16 @@ void  WebSocketGotData( uint8_t c )
             }
 
             payloadlen &= 0x7f;
-            if( payloadlen == 127 ) {
+            if( payloadlen == 127 )
+            {
                 //Very long payload.
                 //Not supported.
                 HTDEBUG( "Unsupported payload packet.\n" );
                 curhttp->state = HTTP_WAIT_CLOSE;
                 break;
-            } else if( payloadlen == 126 ) {
+            }
+            else if( payloadlen == 126 )
+            {
                 payloadlen = (curdata[0] << 8) | curdata[1];
                 curdata += 2;
                 curlen -= 2;
@@ -1083,7 +1165,8 @@ void  WebSocketGotData( uint8_t c )
             //websockets packets into multiple parts.  We could handle this
             //but at the cost of prescious RAM.  I am chosing to just drop those
             //packets on the floor, and restarting the connection.
-            if( curlen < payloadlen ) {
+            if( curlen < payloadlen )
+            {
                 extern int cork_binary_rx;
                 cork_binary_rx = 1;
                 //HTDEBUG( "Websocket Fragmented. %d %d\n", curlen, payloadlen );
@@ -1097,7 +1180,8 @@ void  WebSocketGotData( uint8_t c )
             WebSocketData( payloadlen );
             curlen -= payloadlen;
             curdata = newcurdata;
-        } while( curlen > 5 );
+        }
+        while( curlen > 5 );
         break;
     }
     default:
@@ -1107,7 +1191,8 @@ void  WebSocketGotData( uint8_t c )
 
 void  WebSocketTickInternal()
 {
-    switch( curhttp->state_deets ) {
+    switch( curhttp->state_deets )
+    {
     case 4: //Has key full HTTP header, etc. wants response.
         DataStartPacket();;
         PushString( "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: " );
@@ -1127,11 +1212,14 @@ void  WebSocketSend( uint8_t * data, int size )
 {
     DataStartPacket();;
     PushByte( 0x82 ); //0x81 is text.
-    if( size >= 126 ) {
+    if( size >= 126 )
+    {
         PushByte( 0x00 | 126 );
         PushByte( size>>8 );
         PushByte( size&0xff );
-    } else {
+    }
+    else
+    {
         PushByte( 0x00 | size );
     }
     PushBlob( data, size );
@@ -1194,8 +1282,10 @@ void et_espconn_disconnect( int socket )
     shutdown( socket, SHUT_RDWR );
     int i;
     //printf( "Shut: %d\n", socket );
-    for( i = 0; i < HTTP_CONNECTIONS; i++ ) {
-        if( sockets[i] == socket ) {
+    for( i = 0; i < HTTP_CONNECTIONS; i++ )
+    {
+        if( sockets[i] == socket )
+        {
             http_disconnetcb( i );
             sockets[i] = 0;
         }
@@ -1243,7 +1333,8 @@ int TCPCanSend( int socket, int size )
     FD_SET (socket, &write_fd_set);
 
     int r = select (FD_SETSIZE, NULL, &write_fd_set, NULL, &tv);
-    if (r < 0) {
+    if (r < 0)
+    {
         perror ("select");
         return -1;
     }
@@ -1262,7 +1353,8 @@ int TCPCanRead( int sock )
 
     int r;
     r = select (FD_SETSIZE, &read_fd_set, NULL, NULL, &tv);
-    if (r < 0) {
+    if (r < 0)
+    {
         perror ("select");
         return -1;
     }
@@ -1304,14 +1396,16 @@ int TickHTTP()
     short mappedhttp[HTTP_CONNECTIONS+1];
     if( serverSocket == 0 ) return -1;
 
-    do {
+    do
+    {
         static double last;
         double now;
 #if defined(WINDOWS) || defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
         static LARGE_INTEGER lpf;
         LARGE_INTEGER li;
 
-        if( !lpf.QuadPart ) {
+        if( !lpf.QuadPart )
+        {
             QueryPerformanceFrequency( &lpf );
         }
 
@@ -1323,11 +1417,14 @@ int TickHTTP()
         now = ((double)tv.tv_usec)/1000000. + (tv.tv_sec);
 #endif
         double dl = now - last;
-        if( dl > .1 ) {
+        if( dl > .1 )
+        {
             int i;
             HTTPTick( 1 );
             last = now;
-        } else {
+        }
+        else
+        {
             HTTPTick( 0 );
         }
 
@@ -1347,14 +1444,17 @@ int TickHTTP()
         		poll( allpolls, pollct, HTTP_POLL_TIMEOUT );
         */
         //If there's faults, bail.
-        if( TCPException( serverSocket ) ) {
+        if( TCPException( serverSocket ) )
+        {
             closesocket( serverSocket );
-            for( i = 0; i < HTTP_CONNECTIONS; i ++) {
+            for( i = 0; i < HTTP_CONNECTIONS; i ++)
+            {
                 if( sockets[i] ) closesocket( sockets[i] );
             }
             break;
         }
-        if( TCPCanRead( serverSocket ) ) {
+        if( TCPCanRead( serverSocket ) )
+        {
             struct   sockaddr_in tin;
             socklen_t addrlen  = sizeof(tin);
             memset( &tin, 0, addrlen );
@@ -1378,42 +1478,58 @@ int TickHTTP()
 
             int r = httpserver_connectcb( tsocket );
 
-            if( r == -1 ) {
+            if( r == -1 )
+            {
                 closesocket( tsocket );
-            } else {
+            }
+            else
+            {
                 sockets[r] = tsocket;
             }
         }
-        for( i = 0; i < HTTP_CONNECTIONS; i++) {
+        for( i = 0; i < HTTP_CONNECTIONS; i++)
+        {
             int wc = i;
             if( !sockets[i] || HTTPConnections[i].state == 0 ) continue;
-            if( TCPException(sockets[i]) ) {
+            if( TCPException(sockets[i]) )
+            {
                 http_disconnetcb( wc );
                 closesocket( sockets[wc] );
                 sockets[wc] = 0;
-            } else if( TCPCanRead( sockets[i] ) ) {
+            }
+            else if( TCPCanRead( sockets[i] ) )
+            {
                 int dco = HTTPConnections[i].corked_data_place;
                 uint8_t data[8192];
                 memcpy( data, HTTPConnections[i].corked_data, dco );
                 int len = recv( sockets[wc], data+dco, 8192-dco, 0 );
-                if( len ) {
+                if( len )
+                {
                     cork_binary_rx = 0;
                     http_recvcb( wc, data, len+dco );
-                    if( cork_binary_rx ) {
+                    if( cork_binary_rx )
+                    {
                         int to_cork = len;
-                        if( to_cork > sizeof( HTTPConnections[i].corked_data ) + HTTPConnections[i].corked_data_place ) {
+                        if( to_cork > sizeof( HTTPConnections[i].corked_data ) + HTTPConnections[i].corked_data_place )
+                        {
                             http_disconnetcb( wc );
                             closesocket ( sockets[wc] );
                             sockets[wc] = 0;
                             fprintf( stderr, "Error: too much data to buffer on websocket\n" );
-                        } else {
+                        }
+                        else
+                        {
                             memcpy( HTTPConnections[i].corked_data + dco, data + dco, to_cork );
                             HTTPConnections[i].corked_data_place += to_cork;
                         }
-                    } else {
+                    }
+                    else
+                    {
                         HTTPConnections[i].corked_data_place = 0;
                     }
-                } else {
+                }
+                else
+                {
                     http_disconnetcb( wc );
                     closesocket( sockets[wc] );
                     sockets[wc] = 0;
@@ -1457,7 +1573,8 @@ int RunHTTP( int port )
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 
     //Make sure the socket worked.
-    if( serverSocket == -1 ) {
+    if( serverSocket == -1 )
+    {
         fprintf( stderr, "Error: Cannot create socket.\n" );
         return -1;
     }
@@ -1489,7 +1606,8 @@ int RunHTTP( int port )
     sin.sin_port = htons( port );
 
     //Actually bind to the socket
-    if( bind( serverSocket, (struct sockaddr *) &sin, sizeof( sin ) ) == -1 ) {
+    if( bind( serverSocket, (struct sockaddr *) &sin, sizeof( sin ) ) == -1 )
+    {
         fprintf( stderr, "Could not bind to socket: %d\n", port );
         closesocket( serverSocket );
         serverSocket = 0;
@@ -1497,7 +1615,8 @@ int RunHTTP( int port )
     }
 
     //Finally listen.
-    if( listen( serverSocket, 5 ) == -1 ) {
+    if( listen( serverSocket, 5 ) == -1 )
+    {
         fprintf(stderr, "Could not lieten to socket.");
         closesocket( serverSocket );
         serverSocket = 0;
@@ -1518,12 +1637,14 @@ void Uint32To10Str( char * out, uint32_t dat )
     int val;
     int place = 0;
 
-    while( tens > 1 ) {
+    while( tens > 1 )
+    {
         if( dat/tens ) break;
         tens/=10;
     }
 
-    while( tens ) {
+    while( tens )
+    {
         val = dat/tens;
         dat -= val*tens;
         tens /= 10;
@@ -1553,13 +1674,15 @@ void my_base64_encode(const unsigned char *data, unsigned int input_length, uint
     int output_length = 4 * ((input_length + 2) / 3);
 
     if( !encoded_data ) return;
-    if( !data ) {
+    if( !data )
+    {
         encoded_data[0] = '=';
         encoded_data[1] = 0;
         return;
     }
 
-    for (i = 0, j = 0; i < input_length; ) {
+    for (i = 0, j = 0; i < input_length; )
+    {
 
         uint32_t octet_a = i < input_length ? (unsigned char)data[i++] : 0;
         uint32_t octet_b = i < input_length ? (unsigned char)data[i++] : 0;
@@ -1603,7 +1726,8 @@ uint8_t hex2byte( const char * c )
 
 #ifdef USE_RAM_MFS
 
-unsigned char webpage_buffer[] = {
+unsigned char webpage_buffer[] =
+{
     0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x03, 0xbd, 0x3b, 0x6b, 0x73, 0xda, 0xc8, 0xb2, 0x9f, 0xe1, 0x57, 0x4c, 0xb8, 0x75, 0x37, 0x60, 0x83, 0xc4, 0xc3, 0x76, 0xbc, 0xc6, 0x76,
     0x15, 0xb6, 0x71, 0xe2, 0x73, 0x6c, 0xc7, 0xd7, 0xe0, 0x4d, 0x52, 0xa9, 0x14, 0x25, 0xa4, 0x01, 0x69, 0x2d, 0x24, 0x56, 0x0f, 0x03, 0xd9, 0xf8, 0xbf, 0x9f, 0xee, 0x9e, 0xd1, 0x13, 0x61, 0x9c,
     0x3d, 0xbb, 0x97, 0xc4, 0x20, 0xcd, 0xf4, 0xf4, 0xf4, 0x6b, 0xfa, 0x31, 0x1a, 0xb1, 0xe3, 0x37, 0x17, 0x1f, 0xcf, 0x87, 0x5f, 0xee, 0xfa, 0xcc, 0x0c, 0x66, 0xf6, 0x69, 0xf9, 0x58, 0xfc, 0x94,
@@ -1775,18 +1899,21 @@ unsigned char webpage_buffer[] = {
 int8_t MFSOpenFile( const char * fname, struct MFSFileInfo * mfi )
 {
     printf( "%s\n", fname );
-    if( strcmp( fname, "/" ) == 0 || strcmp( fname, "index.html" ) == 0 ) {
+    if( strcmp( fname, "/" ) == 0 || strcmp( fname, "index.html" ) == 0 )
+    {
         mfi->offset = 0;
         mfi->filelen = sizeof(webpage_buffer);
         return 99;
-    } else
+    }
+    else
         return -1;
 }
 
 int32_t MFSReadSector( uint8_t* data, struct MFSFileInfo * mfi )
 {
     //returns # of bytes left tin file.
-    if( !mfi->filelen ) {
+    if( !mfi->filelen )
+    {
         return 0;
     }
 
@@ -1813,9 +1940,12 @@ int8_t MFSOpenFile( const char * fname, struct MFSFileInfo * mfi )
 {
     char targfile[1024];
 
-    if( strlen( fname ) == 0 || fname[strlen(fname)-1] == '/' ) {
+    if( strlen( fname ) == 0 || fname[strlen(fname)-1] == '/' )
+    {
         snprintf( targfile, sizeof( targfile ) - 1, "tools/rawdraw_http_files/%s/index.html", fname );
-    } else {
+    }
+    else
+    {
         snprintf( targfile, sizeof( targfile ) - 1, "tools/rawdraw_http_files/%s", fname );
     }
 
@@ -1832,7 +1962,8 @@ int8_t MFSOpenFile( const char * fname, struct MFSFileInfo * mfi )
 
 int32_t MFSReadSector( uint8_t* data, struct MFSFileInfo * mfi )
 {
-    if( !mfi->filelen ) {
+    if( !mfi->filelen )
+    {
         return 0;
     }
 
@@ -1961,7 +2092,8 @@ static void RD_SHA1_Transform(uint32_t state[5], const uint8_t buffer[64]);
 static void RD_SHA1_Transform(uint32_t state[5], const uint8_t buffer[64])
 {
     uint32_t a, b, c, d, e;
-    typedef union {
+    typedef union
+    {
         uint8_t c[64];
         uint32_t l[16];
     } CHAR64LONG16;
@@ -2101,14 +2233,17 @@ static void RD_SHA1_Update(RD_SHA1_CTX* context, const uint8_t* data, const unsi
     j = (context->count[0] >> 3) & 63;
     if ((context->count[0] += len << 3) < (len << 3)) context->count[1]++;
     context->count[1] += (len >> 29);
-    if ((j + len) > 63) {
+    if ((j + len) > 63)
+    {
         memcpy(&context->buffer[j], data, (i = 64-j));
         RD_SHA1_Transform(context->state, context->buffer);
-        for ( ; i + 63 < len; i += 64) {
+        for ( ; i + 63 < len; i += 64)
+        {
             RD_SHA1_Transform(context->state, data + i);
         }
         j = 0;
-    } else i = 0;
+    }
+    else i = 0;
     memcpy(&context->buffer[j], &data[i], len - i);
 
 #ifdef VERBOSE
@@ -2123,16 +2258,19 @@ static void RD_SHA1_Final(uint8_t digest[RD_SHA1_DIGEST_SIZE],RD_SHA1_CTX* conte
     uint32_t i;
     uint8_t  finalcount[8];
 
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < 8; i++)
+    {
         finalcount[i] = (unsigned char)((context->count[(i >= 4 ? 0 : 1)]
                                          >> ((3-(i & 3)) * 8) ) & 255);  /* Endian independent */
     }
     RD_SHA1_Update(context, (uint8_t *)"\200", 1);
-    while ((context->count[0] & 504) != 448) {
+    while ((context->count[0] & 504) != 448)
+    {
         RD_SHA1_Update(context, (uint8_t *)"\0", 1);
     }
     RD_SHA1_Update(context, finalcount, 8);  /* Should cause a SHA1_Transform() */
-    for (i = 0; i < RD_SHA1_DIGEST_SIZE; i++) {
+    for (i = 0; i < RD_SHA1_DIGEST_SIZE; i++)
+    {
         digest[i] = (uint8_t)
                     ((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
     }
@@ -2196,7 +2334,8 @@ void CloseEvent()
 
 static void readrdbuffer_websocket_dat(  int len )
 {
-    do {
+    do
+    {
         int bufferok = TCPCanSend( curhttp->socket, 1340 );
         if( transitlen <= 0 || !bufferok || curhttp->bytesleft == -1 ) return;
 
@@ -2212,7 +2351,8 @@ static void readrdbuffer_websocket_dat(  int len )
             curhttp->bytesleft = -1;
         else
             curhttp->bytesleft -= tosend;
-    } while(1);
+    }
+    while(1);
 }
 
 
@@ -2239,25 +2379,29 @@ static void readrdbuffer_websocket_cmd(  int len )
 
     if( len > 1300 ) len = 1300;
 
-    for( i = 0; i < len; i++ ) {
+    for( i = 0; i < len; i++ )
+    {
         buf[i] = WSPOPMASK();
     }
 
-    if( strncmp( buf, "SWAP", 4 ) == 0 ) {
+    if( strncmp( buf, "SWAP", 4 ) == 0 )
+    {
         last_dimensions_w = buf[4] | ( buf[5]<<8 );
         last_dimensions_h = buf[6] | ( buf[7]<<8 );
         ConsumeBackBufferForTransit();
         curhttp->bytesleft = transitlen * 4;
     }
 
-    if( strncmp( buf, "MOTN", 4 ) == 0 ) {
+    if( strncmp( buf, "MOTN", 4 ) == 0 )
+    {
         int x = buf[4] | ( buf[5]<<8 );
         int y = buf[6] | ( buf[7]<<8 );
         int but = buf[11];
         HandleMotion( x, y, but );
     }
 
-    if( strncmp( buf, "BUTN", 4 ) == 0 ) {
+    if( strncmp( buf, "BUTN", 4 ) == 0 )
+    {
         int x = buf[4] | ( buf[5]<<8 );
         int y = buf[6] | ( buf[7]<<8 );
         int down = buf[10];
@@ -2265,7 +2409,8 @@ static void readrdbuffer_websocket_cmd(  int len )
         HandleButton( x, y, but, down );
     }
 
-    if( strncmp( buf, "KEYB", 4 ) == 0 ) {
+    if( strncmp( buf, "KEYB", 4 ) == 0 )
+    {
         int key = buf[6];
         int down = buf[7];
         HandleKey( key, down );
@@ -2278,25 +2423,30 @@ static void readrdbuffer_websocket_cmd(  int len )
 
 void NewWebSocket()
 {
-    if( strncmp( (const char*)curhttp->pathbuffer, "/d/ws/cmdbuf", 9 ) == 0 ) {
+    if( strncmp( (const char*)curhttp->pathbuffer, "/d/ws/cmdbuf", 9 ) == 0 )
+    {
         printf( "Got connection.\n" );
         curhttp->rcb = (void*)&readrdbuffer_websocket_dat;
         curhttp->rcbDat = (void*)&readrdbuffer_websocket_cmd;
-    } else {
+    }
+    else
+    {
         curhttp->is404 = 1;
     }
 }
 
 void WebSocketTick()
 {
-    if( curhttp->rcb ) {
+    if( curhttp->rcb )
+    {
         ((void(*)())curhttp->rcb)();
     }
 }
 
 void WebSocketData( int len )
 {
-    if( curhttp->rcbDat ) {
+    if( curhttp->rcbDat )
+    {
         ((void(*)( int ))curhttp->rcbDat)(  len );
     }
 }
@@ -2315,7 +2465,8 @@ void QueueCmds( uint32_t * toqueue, int numwords )
 {
     int origcmds = curdatacmds;
     curdatacmds += numwords;
-    if( curdatacmds > maxdatacmds ) {
+    if( curdatacmds > maxdatacmds )
+    {
         datacmds = realloc( datacmds, curdatacmds*4 );
         maxdatacmds = curdatacmds;
     }
@@ -2380,7 +2531,8 @@ void CNFGTackPixel( short x1, short y1 )
 
 void CNFGTackSegment( short x1, short y1, short x2, short y2 )
 {
-    uint32_t cmds[3] = {
+    uint32_t cmds[3] =
+    {
         0x30000000,
         ( (uint16_t)x1 ) | ( (uint16_t)y1 << 16 ),
         ( (uint16_t)x2 ) | ( (uint16_t)y2 << 16 )
@@ -2390,7 +2542,8 @@ void CNFGTackSegment( short x1, short y1, short x2, short y2 )
 
 void CNFGTackRectangle( short x1, short y1, short x2, short y2 )
 {
-    uint32_t cmds[3] = {
+    uint32_t cmds[3] =
+    {
         0x40000000,
         ( (uint16_t)x1 ) | ( (uint16_t)y1 << 16 ),
         ( (uint16_t)x2 ) | ( (uint16_t)y2 << 16 )
@@ -2409,7 +2562,8 @@ void CNFGTackPoly( RDPoint * points, int verts )
     uint32_t * cmds = alloca( 4 * verts + 4 );
     int i;
     cmds[0] = 0x50000000 | verts;
-    for( i = 0; i < verts; i++ ) {
+    for( i = 0; i < verts; i++ )
+    {
         uint16_t lx = points[i].x;
         uint16_t ly = points[i].y;
         cmds[i+1] = lx | ( ly << 16 );
@@ -2608,7 +2762,8 @@ void CNFGTackSegment( short x1, short y1, short x2, short y2 )
     if( dx < 0 ) dx = -dx;
     if( dy < 0 ) dy = -dy;
 
-    if( dx > dy ) {
+    if( dx > dy )
+    {
         short minx = (x1 < x2)?x1:x2;
         short maxx = (x1 < x2)?x2:x1;
         short miny = (x1 < x2)?y1:y2;
@@ -2616,14 +2771,17 @@ void CNFGTackSegment( short x1, short y1, short x2, short y2 )
         float thisy = miny;
         slope = (float)(maxy-miny) / (float)(maxx-minx);
 
-        for( tx = minx; tx <= maxx; tx++ ) {
+        for( tx = minx; tx <= maxx; tx++ )
+        {
             ty = thisy;
             if( tx < 0 || ty < 0 || ty >= CNFGBuffery ) continue;
             if( tx >= CNFGBufferx ) break;
             CNFGBuffer[ty * CNFGBufferx + tx] = CNFGLastColor;
             thisy += slope;
         }
-    } else {
+    }
+    else
+    {
         short minx = (y1 < y2)?x1:x2;
         short maxx = (y1 < y2)?x2:x1;
         short miny = (y1 < y2)?y1:y2;
@@ -2631,7 +2789,8 @@ void CNFGTackSegment( short x1, short y1, short x2, short y2 )
         float thisx = minx;
         slope = (float)(maxx-minx) / (float)(maxy-miny);
 
-        for( ty = miny; ty <= maxy; ty++ ) {
+        for( ty = miny; ty <= maxy; ty++ )
+        {
             tx = thisx;
             if( ty < 0 || tx < 0 || tx >= CNFGBufferx ) continue;
             if( ty >= CNFGBuffery ) break;
@@ -2654,9 +2813,11 @@ void CNFGTackRectangle( short x1, short y1, short x2, short y2 )
     if( maxx >= CNFGBufferx ) maxx = CNFGBufferx-1;
     if( maxy >= CNFGBuffery ) maxy = CNFGBuffery-1;
 
-    for( y = miny; y <= maxy; y++ ) {
+    for( y = miny; y <= maxy; y++ )
+    {
         uint32_t * CNFGBufferstart = &CNFGBuffer[y * CNFGBufferx + minx];
-        for( x = minx; x <= maxx; x++ ) {
+        for( x = minx; x <= maxx; x++ )
+        {
             (*CNFGBufferstart++) = CNFGLastColor;
         }
     }
@@ -2671,7 +2832,8 @@ void CNFGTackPoly( RDPoint * points, int verts )
     //Just in case...
     if( verts > 32767 ) return;
 
-    for( i = 0; i < verts; i++ ) {
+    for( i = 0; i < verts; i++ )
+    {
         RDPoint * p = &points[i];
         if( p->x < minx ) minx = p->x;
         if( p->y < miny ) miny = p->y;
@@ -2682,12 +2844,14 @@ void CNFGTackPoly( RDPoint * points, int verts )
     if( miny < 0 ) miny = 0;
     if( maxy >= CNFGBuffery ) maxy = CNFGBuffery-1;
 
-    for( y = miny; y <= maxy; y++ ) {
+    for( y = miny; y <= maxy; y++ )
+    {
         short startfillx = maxx;
         short endfillx = minx;
 
         //Figure out what line segments intersect this line.
-        for( i = 0; i < verts; i++ ) {
+        for( i = 0; i < verts; i++ )
+        {
             short pl = i + 1;
             if( pl == verts ) pl = 0;
 
@@ -2700,7 +2864,8 @@ void CNFGTackPoly( RDPoint * points, int verts )
             pbot.y = points[pl].y;
 //printf( "Poly: %d %d\n", pbot.y, ptop.y );
 
-            if( pbot.y < ptop.y ) {
+            if( pbot.y < ptop.y )
+            {
                 RDPoint ptmp;
                 ptmp.x = pbot.x;
                 ptmp.y = pbot.y;
@@ -2712,21 +2877,28 @@ void CNFGTackPoly( RDPoint * points, int verts )
 
             //Make sure this line segment is within our range.
 //printf( "PT: %d %d %d\n", y, ptop.y, pbot.y );
-            if( ptop.y <= y && pbot.y >= y ) {
+            if( ptop.y <= y && pbot.y >= y )
+            {
                 short diffy = pbot.y - ptop.y;
                 uint32_t placey = (uint32_t)(y - ptop.y)<<16;  //Scale by 16 so we can do integer math.
                 short diffx = pbot.x - ptop.x;
                 short isectx;
 
-                if( diffy == 0 ) {
-                    if( pbot.x < ptop.x ) {
+                if( diffy == 0 )
+                {
+                    if( pbot.x < ptop.x )
+                    {
                         if( startfillx > pbot.x ) startfillx = pbot.x;
                         if( endfillx < ptop.x ) endfillx = ptop.x;
-                    } else {
+                    }
+                    else
+                    {
                         if( startfillx > ptop.x ) startfillx = ptop.x;
                         if( endfillx < pbot.x ) endfillx = pbot.x;
                     }
-                } else {
+                }
+                else
+                {
                     //Inner part is scaled by 65536, outer part must be scaled back.
                     isectx = (( (placey / diffy) * diffx + 32768 )>>16) + ptop.x;
                     if( isectx < startfillx ) startfillx = isectx;
@@ -2744,7 +2916,8 @@ void CNFGTackPoly( RDPoint * points, int verts )
         if( startfillx < 0 ) startfillx = 0;
 
         unsigned int * bufferstart = &CNFGBuffer[y * CNFGBufferx + startfillx];
-        for( x = startfillx; x <= endfillx; x++ ) {
+        for( x = startfillx; x <= endfillx; x++ )
+        {
             (*bufferstart++) = CNFGLastColor;
         }
     }
@@ -2758,7 +2931,8 @@ void CNFGClearFrame()
     uint32_t col = 0;
     short x, y;
     CNFGGetDimensions( &x, &y );
-    if( x != CNFGBufferx || y != CNFGBuffery || !CNFGBuffer ) {
+    if( x != CNFGBufferx || y != CNFGBuffery || !CNFGBuffer )
+    {
         CNFGBufferx = x;
         CNFGBuffery = y;
         CNFGBuffer = malloc( x * y * 8 );
@@ -2766,7 +2940,8 @@ void CNFGClearFrame()
 
     m = x * y;
     col = CNFGColor( CNFGBGColor );
-    for( i = 0; i < m; i++ ) {
+    for( i = 0; i < m; i++ )
+    {
         CNFGBuffer[i] = col;
     }
 }
@@ -2783,11 +2958,13 @@ void CNFGBlitImage( uint32_t * data, int x, int y, int w, int h )
     int ox = x;
     int stride = w;
     if( w <= 0 || h <= 0 || x >= CNFGBufferx || y >= CNFGBuffery ) return;
-    if( x < 0 ) {
+    if( x < 0 )
+    {
         w += x;
         x = 0;
     }
-    if( y < 0 ) {
+    if( y < 0 )
+    {
         h += y;
         y = 0;
     }
@@ -2796,24 +2973,31 @@ void CNFGBlitImage( uint32_t * data, int x, int y, int w, int h )
     h += y;
     w += x;
 
-    if( w >= CNFGBufferx ) {
+    if( w >= CNFGBufferx )
+    {
         w = CNFGBufferx;
     }
-    if( h >= CNFGBuffery ) {
+    if( h >= CNFGBuffery )
+    {
         h = CNFGBuffery;
     }
 
 
-    for( ; y < h-1; y++ ) {
+    for( ; y < h-1; y++ )
+    {
         x = ox;
         uint32_t * indat = data;
         uint32_t * outdat = CNFGBuffer + y * CNFGBufferx + x;
-        for( ; x < w-1; x++ ) {
+        for( ; x < w-1; x++ )
+        {
             uint32_t newm = *(indat++);
             uint32_t oldm = *(outdat);
-            if( (newm & 0xff) == 0xff ) {
+            if( (newm & 0xff) == 0xff )
+            {
                 *(outdat++) = newm;
-            } else {
+            }
+            else
+            {
                 //Alpha blend.
                 int alfa = newm&0xff;
                 int onemalfa = 255-alfa;
@@ -2990,7 +3174,8 @@ void CNFGTackSegment( short x1, short y1, short x2, short y2 )
     if( dx < 0 ) dx = -dx;
     if( dy < 0 ) dy = -dy;
 
-    if( dx > dy ) {
+    if( dx > dy )
+    {
         short minx = (x1 < x2)?x1:x2;
         short maxx = (x1 < x2)?x2:x1;
         short miny = (x1 < x2)?y1:y2;
@@ -2998,14 +3183,17 @@ void CNFGTackSegment( short x1, short y1, short x2, short y2 )
         float thisy = miny;
         slope = (float)(maxy-miny) / (float)(maxx-minx);
 
-        for( tx = minx; tx <= maxx; tx++ ) {
+        for( tx = minx; tx <= maxx; tx++ )
+        {
             ty = thisy;
             if( tx < 0 || ty < 0 || ty >= CNFGBuffery ) continue;
             if( tx >= CNFGBufferx ) break;
             CNFGBuffer[ty * CNFGBufferx + tx] = CNFGLastColor;
             thisy += slope;
         }
-    } else {
+    }
+    else
+    {
         short minx = (y1 < y2)?x1:x2;
         short maxx = (y1 < y2)?x2:x1;
         short miny = (y1 < y2)?y1:y2;
@@ -3013,7 +3201,8 @@ void CNFGTackSegment( short x1, short y1, short x2, short y2 )
         float thisx = minx;
         slope = (float)(maxx-minx) / (float)(maxy-miny);
 
-        for( ty = miny; ty <= maxy; ty++ ) {
+        for( ty = miny; ty <= maxy; ty++ )
+        {
             tx = thisx;
             if( ty < 0 || tx < 0 || tx >= CNFGBufferx ) continue;
             if( ty >= CNFGBuffery ) break;
@@ -3036,9 +3225,11 @@ void CNFGTackRectangle( short x1, short y1, short x2, short y2 )
     if( maxx >= CNFGBufferx ) maxx = CNFGBufferx-1;
     if( maxy >= CNFGBuffery ) maxy = CNFGBuffery-1;
 
-    for( y = miny; y <= maxy; y++ ) {
+    for( y = miny; y <= maxy; y++ )
+    {
         uint32_t * CNFGBufferstart = &CNFGBuffer[y * CNFGBufferx + minx];
-        for( x = minx; x <= maxx; x++ ) {
+        for( x = minx; x <= maxx; x++ )
+        {
             (*CNFGBufferstart++) = CNFGLastColor;
         }
     }
@@ -3053,7 +3244,8 @@ void CNFGTackPoly( RDPoint * points, int verts )
     //Just in case...
     if( verts > 32767 ) return;
 
-    for( i = 0; i < verts; i++ ) {
+    for( i = 0; i < verts; i++ )
+    {
         RDPoint * p = &points[i];
         if( p->x < minx ) minx = p->x;
         if( p->y < miny ) miny = p->y;
@@ -3064,12 +3256,14 @@ void CNFGTackPoly( RDPoint * points, int verts )
     if( miny < 0 ) miny = 0;
     if( maxy >= CNFGBuffery ) maxy = CNFGBuffery-1;
 
-    for( y = miny; y <= maxy; y++ ) {
+    for( y = miny; y <= maxy; y++ )
+    {
         short startfillx = maxx;
         short endfillx = minx;
 
         //Figure out what line segments intersect this line.
-        for( i = 0; i < verts; i++ ) {
+        for( i = 0; i < verts; i++ )
+        {
             short pl = i + 1;
             if( pl == verts ) pl = 0;
 
@@ -3082,7 +3276,8 @@ void CNFGTackPoly( RDPoint * points, int verts )
             pbot.y = points[pl].y;
 //printf( "Poly: %d %d\n", pbot.y, ptop.y );
 
-            if( pbot.y < ptop.y ) {
+            if( pbot.y < ptop.y )
+            {
                 RDPoint ptmp;
                 ptmp.x = pbot.x;
                 ptmp.y = pbot.y;
@@ -3094,21 +3289,28 @@ void CNFGTackPoly( RDPoint * points, int verts )
 
             //Make sure this line segment is within our range.
 //printf( "PT: %d %d %d\n", y, ptop.y, pbot.y );
-            if( ptop.y <= y && pbot.y >= y ) {
+            if( ptop.y <= y && pbot.y >= y )
+            {
                 short diffy = pbot.y - ptop.y;
                 uint32_t placey = (uint32_t)(y - ptop.y)<<16;  //Scale by 16 so we can do integer math.
                 short diffx = pbot.x - ptop.x;
                 short isectx;
 
-                if( diffy == 0 ) {
-                    if( pbot.x < ptop.x ) {
+                if( diffy == 0 )
+                {
+                    if( pbot.x < ptop.x )
+                    {
                         if( startfillx > pbot.x ) startfillx = pbot.x;
                         if( endfillx < ptop.x ) endfillx = ptop.x;
-                    } else {
+                    }
+                    else
+                    {
                         if( startfillx > ptop.x ) startfillx = ptop.x;
                         if( endfillx < pbot.x ) endfillx = pbot.x;
                     }
-                } else {
+                }
+                else
+                {
                     //Inner part is scaled by 65536, outer part must be scaled back.
                     isectx = (( (placey / diffy) * diffx + 32768 )>>16) + ptop.x;
                     if( isectx < startfillx ) startfillx = isectx;
@@ -3126,7 +3328,8 @@ void CNFGTackPoly( RDPoint * points, int verts )
         if( startfillx < 0 ) startfillx = 0;
 
         unsigned int * bufferstart = &CNFGBuffer[y * CNFGBufferx + startfillx];
-        for( x = startfillx; x <= endfillx; x++ ) {
+        for( x = startfillx; x <= endfillx; x++ )
+        {
             (*bufferstart++) = CNFGLastColor;
         }
     }
@@ -3140,7 +3343,8 @@ void CNFGClearFrame()
     uint32_t col = 0;
     short x, y;
     CNFGGetDimensions( &x, &y );
-    if( x != CNFGBufferx || y != CNFGBuffery || !CNFGBuffer ) {
+    if( x != CNFGBufferx || y != CNFGBuffery || !CNFGBuffer )
+    {
         CNFGBufferx = x;
         CNFGBuffery = y;
         CNFGBuffer = malloc( x * y * 8 );
@@ -3148,7 +3352,8 @@ void CNFGClearFrame()
 
     m = x * y;
     col = CNFGColor( CNFGBGColor );
-    for( i = 0; i < m; i++ ) {
+    for( i = 0; i < m; i++ )
+    {
         CNFGBuffer[i] = col;
     }
 }
@@ -3165,11 +3370,13 @@ void CNFGBlitImage( uint32_t * data, int x, int y, int w, int h )
     int ox = x;
     int stride = w;
     if( w <= 0 || h <= 0 || x >= CNFGBufferx || y >= CNFGBuffery ) return;
-    if( x < 0 ) {
+    if( x < 0 )
+    {
         w += x;
         x = 0;
     }
-    if( y < 0 ) {
+    if( y < 0 )
+    {
         h += y;
         y = 0;
     }
@@ -3178,24 +3385,31 @@ void CNFGBlitImage( uint32_t * data, int x, int y, int w, int h )
     h += y;
     w += x;
 
-    if( w >= CNFGBufferx ) {
+    if( w >= CNFGBufferx )
+    {
         w = CNFGBufferx;
     }
-    if( h >= CNFGBuffery ) {
+    if( h >= CNFGBuffery )
+    {
         h = CNFGBuffery;
     }
 
 
-    for( ; y < h-1; y++ ) {
+    for( ; y < h-1; y++ )
+    {
         x = ox;
         uint32_t * indat = data;
         uint32_t * outdat = CNFGBuffer + y * CNFGBufferx + x;
-        for( ; x < w-1; x++ ) {
+        for( ; x < w-1; x++ )
+        {
             uint32_t newm = *(indat++);
             uint32_t oldm = *(outdat);
-            if( (newm & 0xff) == 0xff ) {
+            if( (newm & 0xff) == 0xff )
+            {
                 *(outdat++) = newm;
-            } else {
+            }
+            else
+            {
                 //Alpha blend.
                 int alfa = newm&0xff;
                 int onemalfa = 255-alfa;
@@ -3277,7 +3491,8 @@ void CNFGGetDimensions( short * x, short * y )
     GetClientRect( CNFGlsHWND, &window );
     CNFGBufferx = (short)( window.right - window.left);
     CNFGBuffery = (short)( window.bottom - window.top);
-    if( CNFGBufferx != lastx || CNFGBuffery != lasty ) {
+    if( CNFGBufferx != lastx || CNFGBuffery != lasty )
+    {
         lastx = CNFGBufferx;
         lasty = CNFGBuffery;
         CNFGInternalResize( lastx, lasty );
@@ -3300,14 +3515,16 @@ void CNFGUpdateScreenWithBitmap( uint32_t * data, int w, int h )
     short thisw, thish;
 
     //Check to see if the window is closed.
-    if( !IsWindow( CNFGlsHWND ) ) {
+    if( !IsWindow( CNFGlsHWND ) )
+    {
         exit( 0 );
     }
 
     GetClientRect( CNFGlsHWND, &r );
     thisw = (short)(r.right - r.left);
     thish = (short)(r.bottom - r.top);
-    if( thisw != CNFGBufferx || thish != CNFGBuffery ) {
+    if( thisw != CNFGBufferx || thish != CNFGBuffery )
+    {
         CNFGBufferx = thisw;
         CNFGBuffery = thish;
         InternalHandleResize();
@@ -3324,10 +3541,12 @@ void CNFGTearDown()
 //This was from the article
 LRESULT CALLBACK MyWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch(msg) {
+    switch(msg)
+    {
 #ifndef CNFGOGL
     case WM_SYSCOMMAND:  //Not sure why, if deactivated, the dc gets unassociated?
-        if( wParam == SC_RESTORE || wParam == SC_MAXIMIZE || wParam == SC_SCREENSAVE ) {
+        if( wParam == SC_RESTORE || wParam == SC_MAXIMIZE || wParam == SC_SCREENSAVE )
+        {
             SelectObject( CNFGlsHDC, CNFGlsBitmap );
             SelectObject( CNFGlsWindowHDC, CNFGlsBitmap );
         }
@@ -3351,11 +3570,13 @@ int CNFGSetup( const char * name_of_window, int width, int height )
     int show_window = 1;
     HINSTANCE hInstance = GetModuleHandle(NULL);
 
-    if( width < 0 ) {
+    if( width < 0 )
+    {
         show_window = 0;
         width = -width;
     }
-    if( height < 0 ) {
+    if( height < 0 )
+    {
         show_window = 0;
         height = -height;
     }
@@ -3374,7 +3595,8 @@ int CNFGSetup( const char * name_of_window, int width, int height )
     wnd.lpszMenuName = NULL;                     //no menu
     wnd.lpszClassName = szClassName;
 
-    if(!RegisterClass(&wnd)) {                   //register the WNDCLASS
+    if(!RegisterClass(&wnd))                     //register the WNDCLASS
+    {
         MessageBox(NULL, "This Program Requires Windows NT", "Error", MB_OK);
     }
 
@@ -3394,7 +3616,8 @@ int CNFGSetup( const char * name_of_window, int width, int height )
 
 #ifdef CNFGOGL
     //From NeHe
-    static  PIXELFORMATDESCRIPTOR pfd = {
+    static  PIXELFORMATDESCRIPTOR pfd =
+    {
         sizeof(PIXELFORMATDESCRIPTOR),
         1,
         PFD_DRAW_TO_WINDOW |
@@ -3415,15 +3638,18 @@ int CNFGSetup( const char * name_of_window, int width, int height )
         0, 0, 0
     };
     GLuint      PixelFormat = ChoosePixelFormat( CNFGlsWindowHDC, &pfd );
-    if( !SetPixelFormat( CNFGlsWindowHDC, PixelFormat, &pfd ) ) {
+    if( !SetPixelFormat( CNFGlsWindowHDC, PixelFormat, &pfd ) )
+    {
         MessageBox( 0, "Could not create PFD for OpenGL Context\n", 0, 0 );
         exit( -1 );
     }
-    if (!(hRC=wglCreateContext(CNFGlsWindowHDC))) {                 // Are We Able To Get A Rendering Context?
+    if (!(hRC=wglCreateContext(CNFGlsWindowHDC)))                   // Are We Able To Get A Rendering Context?
+    {
         MessageBox( 0, "Could not create OpenGL Context\n", 0, 0 );
         exit( -1 );
     }
-    if(!wglMakeCurrent(CNFGlsWindowHDC,hRC)) {                      // Try To Activate The Rendering Context
+    if(!wglMakeCurrent(CNFGlsWindowHDC,hRC))                        // Try To Activate The Rendering Context
+    {
         MessageBox( 0, "Could not current OpenGL Context\n", 0, 0 );
         exit( -1 );
     }
@@ -3467,10 +3693,12 @@ int CNFGHandleInput()
 #endif
 
     MSG msg;
-    while( PeekMessage( &msg, NULL, 0, 0xFFFF, 1 ) ) {
+    while( PeekMessage( &msg, NULL, 0, 0xFFFF, 1 ) )
+    {
         TranslateMessage(&msg);
 
-        switch( msg.message ) {
+        switch( msg.message )
+        {
         case WM_MOUSEMOVE:
             HandleMotion( (msg.lParam & 0xFFFF), (msg.lParam>>16) & 0xFFFF, ( (msg.wParam & 0x01)?1:0) | ((msg.wParam & 0x02)?2:0) | ((msg.wParam & 0x10)?4:0) );
             break;
@@ -3545,12 +3773,14 @@ void FlushTacking()
     if( twoarray[0] != 2 )
         for( i = 0; i < 4096; i++ ) twoarray[i] = 2;
 
-    if( linelisthead ) {
+    if( linelisthead )
+    {
         PolyPolyline( CNFGlsHDC, linelist, twoarray, linelisthead );
         linelisthead = 0;
     }
 
-    if( polylistindex ) {
+    if( polylistindex )
+    {
         PolyPolygon( CNFGlsHDC, polylist, polylistcutoffs, polylistindex );
         polylistindex = 0;
         polylisthead = 0;
@@ -3561,8 +3791,10 @@ void FlushTacking()
     possible_lastline = 0;
 
     //XXX TODO: Consider locking the bitmap, and manually drawing the pixels.
-    if( pointlisthead ) {
-        for( i = 0; i < pointlisthead; i++ ) {
+    if( pointlisthead )
+    {
+        for( i = 0; i < pointlisthead; i++ )
+        {
             SetPixel( CNFGlsHDC, pointlist[i].x, pointlist[i].y, CNFGLastColor );
         }
         pointlisthead = 0;
@@ -3596,7 +3828,8 @@ void CNFGBlitImage( uint32_t * data, int x, int y, int w, int h )
 {
     static int pbw, pbh;
     static HBITMAP pbb;
-    if( !pbb || pbw != w || pbh !=h ) {
+    if( !pbb || pbw != w || pbh !=h )
+    {
         if( pbb ) DeleteObject( pbb );
         pbb = CreateBitmap( w, h, 1, 32, 0 );
         pbh = h;
@@ -3611,11 +3844,13 @@ void CNFGTackSegment( short x1, short y1, short x2, short y2 )
 {
 #ifdef BATCH_ELEMENTS
 
-    if( ( x1 != last_linex || y1 != last_liney ) && possible_lastline ) {
+    if( ( x1 != last_linex || y1 != last_liney ) && possible_lastline )
+    {
         CNFGTackPixel( last_linex, last_liney );
     }
 
-    if( x1 == x2 && y1 == y2 ) {
+    if( x1 == x2 && y1 == y2 )
+    {
         CNFGTackPixel( x1, y1 );
         possible_lastline = 0;
         return;
@@ -3625,7 +3860,8 @@ void CNFGTackSegment( short x1, short y1, short x2, short y2 )
     last_liney = y2;
     possible_lastline = 1;
 
-    if( x1 != x2 || y1 != y2 ) {
+    if( x1 != x2 || y1 != y2 )
+    {
         linelist[linelisthead*2+0].x = x1;
         linelist[linelisthead*2+0].y = y1;
         linelist[linelisthead*2+1].x = x2;
@@ -3647,17 +3883,23 @@ void CNFGTackRectangle( short x1, short y1, short x2, short y2 )
     FlushTacking();
 #endif
     RECT r;
-    if( x1 < x2 ) {
+    if( x1 < x2 )
+    {
         r.left = x1;
         r.right = x2;
-    } else          {
+    }
+    else
+    {
         r.left = x2;
         r.right = x1;
     }
-    if( y1 < y2 ) {
+    if( y1 < y2 )
+    {
         r.top = y1;
         r.bottom = y2;
-    } else          {
+    }
+    else
+    {
         r.top = y2;
         r.bottom = y1;
     }
@@ -3680,15 +3922,20 @@ void CNFGClearFrame()
 void CNFGTackPoly( RDPoint * points, int verts )
 {
 #ifdef BATCH_ELEMENTS
-    if( verts > 8192 ) {
+    if( verts > 8192 )
+    {
         FlushTacking();
         //Fall-through
-    } else {
-        if( polylistindex >= 8191 || polylisthead + verts >= 8191 ) {
+    }
+    else
+    {
+        if( polylistindex >= 8191 || polylisthead + verts >= 8191 )
+        {
             FlushTacking();
         }
         int i;
-        for( i = 0; i < verts; i++ ) {
+        for( i = 0; i < verts; i++ )
+        {
             polylist[polylisthead].x = points[i].x;
             polylist[polylisthead].y = points[i].y;
             polylisthead++;
@@ -3700,7 +3947,8 @@ void CNFGTackPoly( RDPoint * points, int verts )
     {
         int i;
         POINT * t = (POINT*)alloca( sizeof( POINT ) * verts );
-        for( i = 0; i < verts; i++ ) {
+        for( i = 0; i < verts; i++ )
+        {
             t[i].x = points[i].x;
             t[i].y = points[i].y;
         }
@@ -3734,7 +3982,8 @@ void CNFGSwapBuffers()
     BitBlt( CNFGlsWindowHDC, 0, 0, CNFGBufferx, CNFGBuffery, CNFGlsHDC, 0, 0, SRCCOPY );
     UpdateWindow( CNFGlsHWND );
     //Check to see if the window is closed.
-    if( !IsWindow( CNFGlsHWND ) ) {
+    if( !IsWindow( CNFGlsHWND ) )
+    {
         exit( 0 );
     }
 
@@ -3742,7 +3991,8 @@ void CNFGSwapBuffers()
     thisw = r.right - r.left;
     thish = r.bottom - r.top;
 
-    if( thisw != CNFGBufferx || thish != CNFGBuffery ) {
+    if( thisw != CNFGBufferx || thish != CNFGBuffery )
+    {
         CNFGBufferx = (short)thisw;
         CNFGBuffery = (short)thish;
         InternalHandleResize();
@@ -3777,7 +4027,8 @@ void CNFGInternalResize( short bfx, short bfy ) { }
 #include <GLES2/gl2ext.h>
 
 
-static const EGLint configAttribs[] = {
+static const EGLint configAttribs[] =
+{
     EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
     EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
     EGL_RED_SIZE, 8,
@@ -3786,7 +4037,8 @@ static const EGLint configAttribs[] = {
     EGL_NONE
 };
 
-EGLint context_attribs[] = {
+EGLint context_attribs[] =
+{
     EGL_CONTEXT_CLIENT_VERSION, 2,
     EGL_NONE
 };
@@ -3794,7 +4046,8 @@ EGLint context_attribs[] = {
 static int pbufferWidth = 0;
 static int pbufferHeight = 0;
 
-static EGLint pbufferAttribs[] = {
+static EGLint pbufferAttribs[] =
+{
     EGL_WIDTH, 0,
     EGL_HEIGHT, 0,
     EGL_NONE,
@@ -3822,7 +4075,8 @@ void CNFGSetupFullscreen( const char * WindowName, int screen_no )
 
 void CNFGTearDown()
 {
-    if( eglDpy ) {
+    if( eglDpy )
+    {
         eglTerminate( eglDpy );
     }
     //Unimplemented.
@@ -3844,10 +4098,13 @@ int CNFGSetup( const char * WindowName, int w, int h )
     EGLConfig eglCfg=NULL;
 
     eglChooseConfig(eglDpy, configAttribs, 0, 0, &numConfigs); //this gets number of configs
-    if (numConfigs) {
+    if (numConfigs)
+    {
         eglChooseConfig(eglDpy, configAttribs, &eglCfg, 1, &numConfigs);
         printf( " EGL config found\n" );
-    } else {
+    }
+    else
+    {
         printf( " Error could not find a valid config avail.. \n" );
     }
 
@@ -3855,12 +4112,14 @@ int CNFGSetup( const char * WindowName, int w, int h )
     eglBindAPI(EGL_OPENGL_API);
     eglCtx = eglCreateContext(eglDpy, eglCfg, EGL_NO_CONTEXT, context_attribs);
     int err = eglGetError();
-    if(err != EGL_SUCCESS) {
+    if(err != EGL_SUCCESS)
+    {
         printf("1. Error %d\n", err);
     }
     printf( "EGL Got context: %p\n", eglCtx );
 
-    if( w > 0 && h > 0 ) {
+    if( w > 0 && h > 0 )
+    {
         eglSurf = eglCreatePbufferSurface(eglDpy, eglCfg, pbufferAttribs);
         eglMakeCurrent(eglDpy, eglSurf, eglSurf, eglCtx);
         printf( "EGL Current, with surface %p\n", eglSurf );
@@ -3870,7 +4129,9 @@ int CNFGSetup( const char * WindowName, int w, int h )
         eglQuerySurface(eglDpy, eglSurf, EGL_WIDTH, &surfwid);
         eglQuerySurface(eglDpy, eglSurf, EGL_HEIGHT, &surfht);
         printf("Window dimensions: %d x %d\n", surfwid, surfht);
-    } else {
+    }
+    else
+    {
         eglMakeCurrent(eglDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, eglCtx);
         printf( "EGL Current, no surface.\n" );
     }
@@ -4001,7 +4262,8 @@ int android_sdk_version;
 Display *XDisplay;
 Window XWindow;
 #else
-typedef enum {
+typedef enum
+{
     FBDEV_PIXMAP_DEFAULT = 0,
     FBDEV_PIXMAP_SUPPORTS_UMP = (1<<0),
     FBDEV_PIXMAP_ALPHA_FORMAT_PRE = (1<<1),
@@ -4009,12 +4271,14 @@ typedef enum {
     FBDEV_PIXMAP_EGL_MEMORY = (1<<3)        /* EGL allocates/frees this memory */
 } fbdev_pixmap_flags;
 
-typedef struct fbdev_window {
+typedef struct fbdev_window
+{
     unsigned short width;
     unsigned short height;
 } fbdev_window;
 
-typedef struct fbdev_pixmap {
+typedef struct fbdev_pixmap
+{
     unsigned int height;
     unsigned int width;
     unsigned int bytes_per_pixel;
@@ -4038,7 +4302,8 @@ struct fbdev_window native_window;
 #endif
 
 
-static EGLint const config_attribute_list[] = {
+static EGLint const config_attribute_list[] =
+{
     EGL_RED_SIZE, 8,
     EGL_GREEN_SIZE, 8,
     EGL_BLUE_SIZE, 8,
@@ -4062,11 +4327,13 @@ static EGLint const config_attribute_list[] = {
 };
 
 
-static EGLint window_attribute_list[] = {
+static EGLint window_attribute_list[] =
+{
     EGL_NONE
 };
 
-static const EGLint context_attribute_list[] = {
+static const EGLint context_attribute_list[] =
+{
     EGL_CONTEXT_CLIENT_VERSION, 2,
     EGL_NONE
 };
@@ -4116,9 +4383,11 @@ int CNFGSetup( const char * WindowName, int w, int h )
 
     //This MUST be called before doing any initialization.
     int events;
-    while( !OGLESStarted ) {
+    while( !OGLESStarted )
+    {
         struct android_poll_source* source;
-        if (ALooper_pollAll( 0, 0, &events, (void**)&source) >= 0) {
+        if (ALooper_pollAll( 0, 0, &events, (void**)&source) >= 0)
+        {
             if (source != NULL) source->process(gapp, source);
         }
     }
@@ -4126,7 +4395,8 @@ int CNFGSetup( const char * WindowName, int w, int h )
 
 #ifdef USE_EGL_X
     XDisplay = XOpenDisplay(NULL);
-    if (!XDisplay) {
+    if (!XDisplay)
+    {
         ERRLOG( "Error: failed to open X display.\n");
         return -1;
     }
@@ -4151,7 +4421,8 @@ int CNFGSetup( const char * WindowName, int w, int h )
 #else
 
 #ifndef ANDROID
-    if( w >= 1 && h >= 1 ) {
+    if( w >= 1 && h >= 1 )
+    {
         native_window.width = w;
         native_window.height =h;
     }
@@ -4159,12 +4430,14 @@ int CNFGSetup( const char * WindowName, int w, int h )
 
     egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 #endif
-    if (egl_display == EGL_NO_DISPLAY) {
+    if (egl_display == EGL_NO_DISPLAY)
+    {
         ERRLOG( "Error: No display found!\n");
         return -1;
     }
 
-    if (!eglInitialize(egl_display, &egl_major, &egl_minor)) {
+    if (!eglInitialize(egl_display, &egl_major, &egl_minor))
+    {
         ERRLOG( "Error: eglInitialise failed!\n");
         return -1;
     }
@@ -4184,7 +4457,8 @@ int CNFGSetup( const char * WindowName, int w, int h )
     context = eglCreateContext(egl_display, config, EGL_NO_CONTEXT,
 //				NULL );
                                context_attribute_list);
-    if (context == EGL_NO_CONTEXT) {
+    if (context == EGL_NO_CONTEXT)
+    {
         ERRLOG( "Error: eglCreateContext failed: 0x%08X\n",
                 eglGetError());
         return -1;
@@ -4196,14 +4470,16 @@ int CNFGSetup( const char * WindowName, int w, int h )
                                          window_attribute_list);
 #else
 
-    if( native_window && !gapp->window ) {
+    if( native_window && !gapp->window )
+    {
         printf( "WARNING: App restarted without a window.  Cannot progress.\n" );
         exit( 0 );
     }
 
     printf( "Getting Surface %p\n", native_window = gapp->window );
 
-    if( !native_window ) {
+    if( !native_window )
+    {
         printf( "FAULT: Cannot get window\n" );
         return -5;
     }
@@ -4220,7 +4496,8 @@ int CNFGSetup( const char * WindowName, int w, int h )
 #endif
     printf( "Got Surface: %p\n", egl_surface );
 
-    if (egl_surface == EGL_NO_SURFACE) {
+    if (egl_surface == EGL_NO_SURFACE)
+    {
         ERRLOG( "Error: eglCreateWindowSurface failed: "
                 "0x%08X\n", eglGetError());
         return -1;
@@ -4229,7 +4506,8 @@ int CNFGSetup( const char * WindowName, int w, int h )
 #ifndef ANDROID
     int width, height;
     if (!eglQuerySurface(egl_display, egl_surface, EGL_WIDTH, &width) ||
-            !eglQuerySurface(egl_display, egl_surface, EGL_HEIGHT, &height)) {
+            !eglQuerySurface(egl_display, egl_surface, EGL_HEIGHT, &height))
+    {
         ERRLOG( "Error: eglQuerySurface failed: 0x%08X\n",
                 eglGetError());
         return -1;
@@ -4240,7 +4518,8 @@ int CNFGSetup( const char * WindowName, int w, int h )
     native_window.height = height;
 #endif
 
-    if (!eglMakeCurrent(egl_display, egl_surface, egl_surface, context)) {
+    if (!eglMakeCurrent(egl_display, egl_surface, egl_surface, context))
+    {
         ERRLOG( "Error: eglMakeCurrent() failed: 0x%08X\n",
                 eglGetError());
         return -1;
@@ -4276,7 +4555,8 @@ int32_t handle_input(struct android_app* app, AInputEvent* event)
 #ifdef ANDROID
     //Potentially do other things here.
 
-    if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
+    if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
+    {
         static uint64_t downmask;
 
         int action = AMotionEvent_getAction( event );
@@ -4284,29 +4564,37 @@ int32_t handle_input(struct android_app* app, AInputEvent* event)
         action &= AMOTION_EVENT_ACTION_MASK;
         size_t pointerCount = AMotionEvent_getPointerCount(event);
 
-        for (size_t i = 0; i < pointerCount; ++i) {
+        for (size_t i = 0; i < pointerCount; ++i)
+        {
             int x, y, index;
             x = AMotionEvent_getX(event, i);
             y = AMotionEvent_getY(event, i);
             index = AMotionEvent_getPointerId( event, i );
 
-            if( action == AMOTION_EVENT_ACTION_POINTER_DOWN || action == AMOTION_EVENT_ACTION_DOWN ) {
+            if( action == AMOTION_EVENT_ACTION_POINTER_DOWN || action == AMOTION_EVENT_ACTION_DOWN )
+            {
                 int id = index;
                 if( action == AMOTION_EVENT_ACTION_POINTER_DOWN && id != whichsource ) continue;
                 HandleButton( x, y, id, 1 );
                 downmask    |= 1<<id;
                 ANativeActivity_showSoftInput( gapp->activity, ANATIVEACTIVITY_SHOW_SOFT_INPUT_FORCED );
-            } else if( action == AMOTION_EVENT_ACTION_POINTER_UP || action == AMOTION_EVENT_ACTION_UP || action == AMOTION_EVENT_ACTION_CANCEL ) {
+            }
+            else if( action == AMOTION_EVENT_ACTION_POINTER_UP || action == AMOTION_EVENT_ACTION_UP || action == AMOTION_EVENT_ACTION_CANCEL )
+            {
                 int id = index;
                 if( action == AMOTION_EVENT_ACTION_POINTER_UP && id != whichsource ) continue;
                 HandleButton( x, y, id, 0 );
                 downmask    &= ~(1<<id);
-            } else if( action == AMOTION_EVENT_ACTION_MOVE ) {
+            }
+            else if( action == AMOTION_EVENT_ACTION_MOVE )
+            {
                 HandleMotion( x, y, index );
             }
         }
         return 1;
-    } else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY) {
+    }
+    else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY)
+    {
         int code = AKeyEvent_getKeyCode(event);
 #ifdef ANDROID_USE_SCANCODES
         HandleKey( code, AKeyEvent_getAction(event) );
@@ -4314,7 +4602,8 @@ int32_t handle_input(struct android_app* app, AInputEvent* event)
         int unicode = AndroidGetUnicodeChar( code, AMotionEvent_getMetaState( event ) );
         if( unicode )
             HandleKey( unicode, AKeyEvent_getAction(event) );
-        else {
+        else
+        {
             HandleKey( code, !AKeyEvent_getAction(event) );
             return (code == 4)?1:0; //don't override functionality.
         }
@@ -4332,15 +4621,18 @@ int CNFGHandleInput()
 #ifdef ANDROID
     int events;
     struct android_poll_source* source;
-    while( ALooper_pollAll( 0, 0, &events, (void**)&source) >= 0 ) {
-        if (source != NULL) {
+    while( ALooper_pollAll( 0, 0, &events, (void**)&source) >= 0 )
+    {
+        if (source != NULL)
+        {
             source->process(gapp, source);
         }
     }
 #endif
 
 #ifdef USE_EGL_X
-    while (1) {
+    while (1)
+    {
         XEvent event;
 
         XNextEvent(XDisplay, &event);
@@ -4348,7 +4640,8 @@ int CNFGHandleInput()
         if ((event.type == MotionNotify) ||
                 (event.type == Expose))
             Redraw(width, height);
-        else if (event.type == ClientMessage) {
+        else if (event.type == ClientMessage)
+        {
             if (event.xclient.data.l[0] == XWMDeleteMessage)
                 break;
         }
@@ -4365,7 +4658,8 @@ int CNFGHandleInput()
 
 void handle_cmd(struct android_app* app, int32_t cmd)
 {
-    switch (cmd) {
+    switch (cmd)
+    {
     case APP_CMD_DESTROY:
         //This gets called initially after back.
         HandleDestroy();
@@ -4373,10 +4667,13 @@ void handle_cmd(struct android_app* app, int32_t cmd)
         break;
     case APP_CMD_INIT_WINDOW:
         //When returning from a back button suspension, this isn't called.
-        if( !OGLESStarted ) {
+        if( !OGLESStarted )
+        {
             OGLESStarted = 1;
             printf( "Got start event\n" );
-        } else {
+        }
+        else
+        {
             CNFGSetup( "", -1, -1 );
             HandleResume();
         }
@@ -4503,11 +4800,14 @@ void AndroidDisplayKeyboard(int pShow)
     jmethodID MethodGetDecorView = env->GetMethodID( envptr, ClassWindow, "getDecorView", "()Landroid/view/View;");
     jobject lDecorView = env->CallObjectMethod( envptr, lWindow, MethodGetDecorView);
 
-    if (pShow) {
+    if (pShow)
+    {
         // Runs lInputMethodManager.showSoftInput(...).
         jmethodID MethodShowSoftInput = env->GetMethodID( envptr, ClassInputMethodManager, "showSoftInput", "(Landroid/view/View;I)Z");
         /*jboolean lResult = */env->CallBooleanMethod( envptr, lInputMethodManager, MethodShowSoftInput, lDecorView, lFlags);
-    } else {
+    }
+    else
+    {
         // Runs lWindow.getViewToken()
         jclass ClassView = env->FindClass( envptr, "android/view/View");
         jmethodID MethodGetWindowToken = env->GetMethodID( envptr, ClassView, "getWindowToken", "()Landroid/os/IBinder;");
@@ -4585,7 +4885,8 @@ int AndroidHasPermissions( const char* perm_name)
     const struct JNIInvokeInterface ** jniiptr = app->activity->vm;
     const struct JNIInvokeInterface * jnii = *jniiptr;
 
-    if( android_sdk_version < 23 ) {
+    if( android_sdk_version < 23 )
+    {
         printf( "Android SDK version %d does not support AndroidHasPermissions\n", android_sdk_version );
         return 1;
     }
@@ -4625,7 +4926,8 @@ int AndroidHasPermissions( const char* perm_name)
  */
 void AndroidRequestAppPermissions(const char * perm)
 {
-    if( android_sdk_version < 23 ) {
+    if( android_sdk_version < 23 )
+    {
         printf( "Android SDK version %d does not support AndroidRequestAppPermissions\n",android_sdk_version );
         return;
     }
@@ -4749,7 +5051,8 @@ void 	CNFGSetWindowIconData( int w, int h, uint32_t * data )
 
     unsigned long outdata[w*h];
     int i;
-    for( i = 0; i < w*h; i++ ) {
+    for( i = 0; i < w*h; i++ )
+    {
         outdata[i+2] = data[i];
     }
     outdata[0] = w;
@@ -4768,11 +5071,13 @@ void	CNFGDrawToTransparencyMode( int transp )
 {
     static Pixmap BackupCNFGPixmap;
     static GC     BackupCNFGGC;
-    if( was_transp && ! transp ) {
+    if( was_transp && ! transp )
+    {
         CNFGGC = BackupCNFGGC;
         CNFGPixmap = BackupCNFGPixmap;
     }
-    if( !was_transp && transp ) {
+    if( !was_transp && transp )
+    {
         BackupCNFGPixmap = CNFGPixmap;
         BackupCNFGGC = CNFGGC;
         taint_shape = 1;
@@ -4811,7 +5116,8 @@ void CNFGGetDimensions( short * x, short * y )
     *x = CNFGWinAtt.width;
     *y = CNFGWinAtt.height;
 
-    if( lastx != *x || lasty != *y ) {
+    if( lastx != *x || lasty != *y )
+    {
         lastx = *x;
         lasty = *y;
         CNFGInternalResize( lastx, lasty );
@@ -4829,16 +5135,22 @@ static void InternalLinkScreenAndGo( const char * WindowName )
     XGetWindowAttributes( CNFGDisplay, CNFGWindow, &CNFGWinAtt );
 
     XGetClassHint( CNFGDisplay, CNFGWindow, CNFGClassHint );
-    if (!CNFGClassHint) {
+    if (!CNFGClassHint)
+    {
         CNFGClassHint = XAllocClassHint();
-        if (CNFGClassHint) {
+        if (CNFGClassHint)
+        {
             CNFGClassHint->res_name = wm_res_name;
             CNFGClassHint->res_class = wm_res_class;
             XSetClassHint( CNFGDisplay, CNFGWindow, CNFGClassHint );
-        } else {
+        }
+        else
+        {
             fprintf( stderr, "Failed to allocate XClassHint!\n" );
         }
-    } else {
+    }
+    else
+    {
         fprintf( stderr, "Pre-existing XClassHint\n" );
     }
 
@@ -4848,7 +5160,8 @@ static void InternalLinkScreenAndGo( const char * WindowName )
     CNFGWindowGC = XCreateGC(CNFGDisplay, CNFGWindow, 0, 0);
 
 
-    if( CNFGX11ForceNoDecoration ) {
+    if( CNFGX11ForceNoDecoration )
+    {
         Atom window_type = XInternAtom(CNFGDisplay, "_NET_WM_WINDOW_TYPE", False);
         long value = XInternAtom(CNFGDisplay, "_NET_WM_WINDOW_TYPE_SPLASH", False);
         XChangeProperty(CNFGDisplay, CNFGWindow, window_type,
@@ -4863,7 +5176,8 @@ static void InternalLinkScreenAndGo( const char * WindowName )
         XMapWindow(CNFGDisplay, CNFGWindow);
 
 #ifdef CNFG_HAS_XSHAPE
-    if( prepare_xshape ) {
+    if( prepare_xshape )
+    {
         xsval.foreground = 1;
         xsval.line_width = 1;
         xsval.line_style = LineSolid;
@@ -4884,7 +5198,8 @@ void CNFGSetupFullscreen( const char * WindowName, int screen_no )
     int screen = XDefaultScreen(CNFGDisplay);
     int xpos, ypos;
 
-    if (!XShapeQueryExtension(CNFGDisplay, &event_basep, &error_basep)) {
+    if (!XShapeQueryExtension(CNFGDisplay, &event_basep, &error_basep))
+    {
         fprintf( stderr, "X-Server does not support shape extension\n" );
         exit( 1 );
     }
@@ -4910,13 +5225,16 @@ void CNFGSetupFullscreen( const char * WindowName, int screen_no )
     if (XineramaQueryExtension(CNFGDisplay, &a, &b ) &&
             (screeninfo = XineramaQueryScreens(CNFGDisplay, &screens)) &&
             XineramaIsActive(CNFGDisplay) && screen_no >= 0 &&
-            screen_no < screens ) {
+            screen_no < screens )
+    {
 
         CNFGWinAtt.width = screeninfo[screen_no].width;
         CNFGWinAtt.height = screeninfo[screen_no].height;
         xpos = screeninfo[screen_no].x_org;
         ypos = screeninfo[screen_no].y_org;
-    } else {
+    }
+    else
+    {
         CNFGWinAtt.width = XDisplayWidth(CNFGDisplay, screen);
         CNFGWinAtt.height = XDisplayHeight(CNFGDisplay, screen);
         xpos = 0;
@@ -4931,7 +5249,8 @@ void CNFGSetupFullscreen( const char * WindowName, int screen_no )
     setwinattr.save_under = 1;
 #ifdef CNFG_HAS_XSHAPE
 
-    if (prepare_xshape && !XShapeQueryExtension(CNFGDisplay, &event_basep, &error_basep)) {
+    if (prepare_xshape && !XShapeQueryExtension(CNFGDisplay, &event_basep, &error_basep))
+    {
         fprintf( stderr, "X-Server does not support shape extension" );
         exit( 1 );
     }
@@ -4985,7 +5304,8 @@ int CNFGSetupWMClass( const char * WindowName, int w, int h, char * wm_res_name_
 int CNFGSetup( const char * WindowName, int w, int h )
 {
     CNFGDisplay = XOpenDisplay(NULL);
-    if ( !CNFGDisplay ) {
+    if ( !CNFGDisplay )
+    {
         fprintf( stderr, "Could not get an X Display.\n%s",
                  "Are you in text mode or using SSH without X11-Forwarding?\n" );
         exit( 1 );
@@ -5017,7 +5337,8 @@ int CNFGSetup( const char * WindowName, int w, int h )
     attr.colormap = XCreateColormap( CNFGDisplay, wnd, CNFGVisual, AllocNone);
     if( w  > 0 && h > 0 )
         CNFGWindow = XCreateWindow(CNFGDisplay, wnd, 1, 1, w, h, 0, depth, InputOutput, CNFGVisual, CWBackPixel | CWColormap, &attr );
-    else {
+    else
+    {
         if( w < 0 ) w = -w;
         if( h < 0 ) h = -h;
         CNFGWindow = XCreateWindow(CNFGDisplay, wnd, 1, 1, w, h, 0, depth, InputOutput, CNFGVisual, CWBackPixel | CWColormap, &attr );
@@ -5048,11 +5369,13 @@ int CNFGHandleInput()
     XEvent report;
 
     int bKeyDirection = 1;
-    while( XPending( CNFGDisplay ) ) {
+    while( XPending( CNFGDisplay ) )
+    {
         XNextEvent( CNFGDisplay, &report );
 
         bKeyDirection = 1;
-        switch  (report.type) {
+        switch  (report.type)
+        {
         case NoExpose:
             break;
         case Expose:
@@ -5062,10 +5385,12 @@ int CNFGHandleInput()
             if( CNFGGC ) XFreeGC( CNFGDisplay, CNFGGC );
             CNFGGC = XCreateGC(CNFGDisplay, CNFGPixmap, 0, 0);
             break;
-        case KeyRelease: {
+        case KeyRelease:
+        {
             bKeyDirection = 0;
             //Tricky - handle key repeats cleanly.
-            if( XPending( CNFGDisplay ) ) {
+            if( XPending( CNFGDisplay ) )
+            {
                 XEvent nev;
                 XPeekEvent( CNFGDisplay, &nev );
                 if (nev.type == KeyPress && nev.xkey.time == report.xkey.time && nev.xkey.keycode == report.xkey.keycode )
@@ -5126,7 +5451,8 @@ void CNFGSwapBuffers()
 #endif
 
 #ifdef CNFG_HAS_XSHAPE
-    if( taint_shape ) {
+    if( taint_shape )
+    {
         XShapeCombineMask(CNFGDisplay, CNFGWindow, ShapeBounding, 0, 0, xspixmap, ShapeSet);
         taint_shape = 0;
     }
@@ -5147,12 +5473,14 @@ void CNFGBlitImage( uint32_t * data, int x, int y, int w, int h )
     static int depth;
     static int lw, lh;
 
-    if( !xi ) {
+    if( !xi )
+    {
         int screen = DefaultScreen(CNFGDisplay);
         depth = DefaultDepth(CNFGDisplay, screen)/8;
     }
 
-    if( lw != w || lh != h ) {
+    if( lw != w || lh != h )
+    {
         if( xi ) free( xi );
         xi = XCreateImage(CNFGDisplay, CNFGVisual, depth*8, ZPixmap, 0, (char*)data, w, h, 32, w*4 );
         lw = w;
@@ -5169,7 +5497,8 @@ void CNFGUpdateScreenWithBitmap( uint32_t * data, int w, int h )
     static int depth;
     static int lw, lh;
 
-    if( !xi ) {
+    if( !xi )
+    {
         int screen = DefaultScreen(CNFGDisplay);
         depth = DefaultDepth(CNFGDisplay, screen)/8;
 //		xi = XCreateImage(CNFGDisplay, DefaultVisual( CNFGDisplay, DefaultScreen(CNFGDisplay) ), depth*8, ZPixmap, 0, (char*)data, w, h, 32, w*4 );
@@ -5177,7 +5506,8 @@ void CNFGUpdateScreenWithBitmap( uint32_t * data, int w, int h )
 //		lh = h;
     }
 
-    if( lw != w || lh != h ) {
+    if( lw != w || lh != h )
+    {
         if( xi ) free( xi );
         xi = XCreateImage(CNFGDisplay, CNFGVisual, depth*8, ZPixmap, 0, (char*)data, w, h, 32, w*4 );
         lw = w;
@@ -5272,7 +5602,8 @@ void CNFGTackSegment( short x1, short y1, short x2, short y2 )
     if( dx < 0 ) dx = -dx;
     if( dy < 0 ) dy = -dy;
 
-    if( dx > dy ) {
+    if( dx > dy )
+    {
         short minx = (x1 < x2)?x1:x2;
         short maxx = (x1 < x2)?x2:x1;
         short miny = (x1 < x2)?y1:y2;
@@ -5280,14 +5611,17 @@ void CNFGTackSegment( short x1, short y1, short x2, short y2 )
         float thisy = miny;
         slope = (float)(maxy-miny) / (float)(maxx-minx);
 
-        for( tx = minx; tx <= maxx; tx++ ) {
+        for( tx = minx; tx <= maxx; tx++ )
+        {
             ty = thisy;
             if( tx < 0 || ty < 0 || ty >= CNFGBuffery ) continue;
             if( tx >= CNFGBufferx ) break;
             CNFGBuffer[ty * CNFGBufferx + tx] = CNFGLastColor;
             thisy += slope;
         }
-    } else {
+    }
+    else
+    {
         short minx = (y1 < y2)?x1:x2;
         short maxx = (y1 < y2)?x2:x1;
         short miny = (y1 < y2)?y1:y2;
@@ -5295,7 +5629,8 @@ void CNFGTackSegment( short x1, short y1, short x2, short y2 )
         float thisx = minx;
         slope = (float)(maxx-minx) / (float)(maxy-miny);
 
-        for( ty = miny; ty <= maxy; ty++ ) {
+        for( ty = miny; ty <= maxy; ty++ )
+        {
             tx = thisx;
             if( ty < 0 || tx < 0 || tx >= CNFGBufferx ) continue;
             if( ty >= CNFGBuffery ) break;
@@ -5318,9 +5653,11 @@ void CNFGTackRectangle( short x1, short y1, short x2, short y2 )
     if( maxx >= CNFGBufferx ) maxx = CNFGBufferx-1;
     if( maxy >= CNFGBuffery ) maxy = CNFGBuffery-1;
 
-    for( y = miny; y <= maxy; y++ ) {
+    for( y = miny; y <= maxy; y++ )
+    {
         uint32_t * CNFGBufferstart = &CNFGBuffer[y * CNFGBufferx + minx];
-        for( x = minx; x <= maxx; x++ ) {
+        for( x = minx; x <= maxx; x++ )
+        {
             (*CNFGBufferstart++) = CNFGLastColor;
         }
     }
@@ -5335,7 +5672,8 @@ void CNFGTackPoly( RDPoint * points, int verts )
     //Just in case...
     if( verts > 32767 ) return;
 
-    for( i = 0; i < verts; i++ ) {
+    for( i = 0; i < verts; i++ )
+    {
         RDPoint * p = &points[i];
         if( p->x < minx ) minx = p->x;
         if( p->y < miny ) miny = p->y;
@@ -5346,12 +5684,14 @@ void CNFGTackPoly( RDPoint * points, int verts )
     if( miny < 0 ) miny = 0;
     if( maxy >= CNFGBuffery ) maxy = CNFGBuffery-1;
 
-    for( y = miny; y <= maxy; y++ ) {
+    for( y = miny; y <= maxy; y++ )
+    {
         short startfillx = maxx;
         short endfillx = minx;
 
         //Figure out what line segments intersect this line.
-        for( i = 0; i < verts; i++ ) {
+        for( i = 0; i < verts; i++ )
+        {
             short pl = i + 1;
             if( pl == verts ) pl = 0;
 
@@ -5364,7 +5704,8 @@ void CNFGTackPoly( RDPoint * points, int verts )
             pbot.y = points[pl].y;
 //printf( "Poly: %d %d\n", pbot.y, ptop.y );
 
-            if( pbot.y < ptop.y ) {
+            if( pbot.y < ptop.y )
+            {
                 RDPoint ptmp;
                 ptmp.x = pbot.x;
                 ptmp.y = pbot.y;
@@ -5376,21 +5717,28 @@ void CNFGTackPoly( RDPoint * points, int verts )
 
             //Make sure this line segment is within our range.
 //printf( "PT: %d %d %d\n", y, ptop.y, pbot.y );
-            if( ptop.y <= y && pbot.y >= y ) {
+            if( ptop.y <= y && pbot.y >= y )
+            {
                 short diffy = pbot.y - ptop.y;
                 uint32_t placey = (uint32_t)(y - ptop.y)<<16;  //Scale by 16 so we can do integer math.
                 short diffx = pbot.x - ptop.x;
                 short isectx;
 
-                if( diffy == 0 ) {
-                    if( pbot.x < ptop.x ) {
+                if( diffy == 0 )
+                {
+                    if( pbot.x < ptop.x )
+                    {
                         if( startfillx > pbot.x ) startfillx = pbot.x;
                         if( endfillx < ptop.x ) endfillx = ptop.x;
-                    } else {
+                    }
+                    else
+                    {
                         if( startfillx > ptop.x ) startfillx = ptop.x;
                         if( endfillx < pbot.x ) endfillx = pbot.x;
                     }
-                } else {
+                }
+                else
+                {
                     //Inner part is scaled by 65536, outer part must be scaled back.
                     isectx = (( (placey / diffy) * diffx + 32768 )>>16) + ptop.x;
                     if( isectx < startfillx ) startfillx = isectx;
@@ -5408,7 +5756,8 @@ void CNFGTackPoly( RDPoint * points, int verts )
         if( startfillx < 0 ) startfillx = 0;
 
         unsigned int * bufferstart = &CNFGBuffer[y * CNFGBufferx + startfillx];
-        for( x = startfillx; x <= endfillx; x++ ) {
+        for( x = startfillx; x <= endfillx; x++ )
+        {
             (*bufferstart++) = CNFGLastColor;
         }
     }
@@ -5422,7 +5771,8 @@ void CNFGClearFrame()
     uint32_t col = 0;
     short x, y;
     CNFGGetDimensions( &x, &y );
-    if( x != CNFGBufferx || y != CNFGBuffery || !CNFGBuffer ) {
+    if( x != CNFGBufferx || y != CNFGBuffery || !CNFGBuffer )
+    {
         CNFGBufferx = x;
         CNFGBuffery = y;
         CNFGBuffer = malloc( x * y * 8 );
@@ -5430,7 +5780,8 @@ void CNFGClearFrame()
 
     m = x * y;
     col = CNFGColor( CNFGBGColor );
-    for( i = 0; i < m; i++ ) {
+    for( i = 0; i < m; i++ )
+    {
         CNFGBuffer[i] = col;
     }
 }
@@ -5447,11 +5798,13 @@ void CNFGBlitImage( uint32_t * data, int x, int y, int w, int h )
     int ox = x;
     int stride = w;
     if( w <= 0 || h <= 0 || x >= CNFGBufferx || y >= CNFGBuffery ) return;
-    if( x < 0 ) {
+    if( x < 0 )
+    {
         w += x;
         x = 0;
     }
-    if( y < 0 ) {
+    if( y < 0 )
+    {
         h += y;
         y = 0;
     }
@@ -5460,24 +5813,31 @@ void CNFGBlitImage( uint32_t * data, int x, int y, int w, int h )
     h += y;
     w += x;
 
-    if( w >= CNFGBufferx ) {
+    if( w >= CNFGBufferx )
+    {
         w = CNFGBufferx;
     }
-    if( h >= CNFGBuffery ) {
+    if( h >= CNFGBuffery )
+    {
         h = CNFGBuffery;
     }
 
 
-    for( ; y < h-1; y++ ) {
+    for( ; y < h-1; y++ )
+    {
         x = ox;
         uint32_t * indat = data;
         uint32_t * outdat = CNFGBuffer + y * CNFGBufferx + x;
-        for( ; x < w-1; x++ ) {
+        for( ; x < w-1; x++ )
+        {
             uint32_t newm = *(indat++);
             uint32_t oldm = *(outdat);
-            if( (newm & 0xff) == 0xff ) {
+            if( (newm & 0xff) == 0xff )
+            {
                 *(outdat++) = newm;
-            } else {
+            }
+            else
+            {
                 //Alpha blend.
                 int alfa = newm&0xff;
                 int onemalfa = 255-alfa;
@@ -5547,7 +5907,8 @@ void AGLF(CNFGClearFrame)()
 void AGLF(CNFGSwapBuffers)()
 {
 #ifdef CNFG_HAS_XSHAPE
-    if( taint_shape ) {
+    if( taint_shape )
+    {
         XShapeCombineMask(CNFGDisplay, CNFGWindow, ShapeBounding, 0, 0, xspixmap, ShapeSet);
         taint_shape = 0;
     }
@@ -5562,11 +5923,14 @@ void AGLF(CNFGSwapBuffers)()
 
 void AGLF(CNFGTackSegment)( short x1, short y1, short x2, short y2 )
 {
-    if( x1 == x2 && y1 == y2 ) {
+    if( x1 == x2 && y1 == y2 )
+    {
         //On some targets, zero-length lines will not show up.
         //This is tricky - since this will also cause more draw calls for points on systems like GLAMOR.
         XDrawPoint( CNFGDisplay, CNFGPixmap, CNFGGC, x2, y2 );
-    } else {
+    }
+    else
+    {
         //XXX HACK!  See discussion here: https://github.com/cntools/cnping/issues/68
         XDrawLine( CNFGDisplay, CNFGPixmap, CNFGGC, x1, y1, x2, y2 );
         XDrawLine( CNFGDisplay, CNFGPixmap, CNFGGC, x2, y2, x1, y1 );
@@ -5641,7 +6005,8 @@ uint32_t CNFGLastColor;
 //uint32_t CNFGDialogColor; //background for boxes [DEPRECATED]
 
 // The following two arrays are generated by Fonter/fonter.cpp
-const unsigned short RawdrawFontCharMap[256] = {
+const unsigned short RawdrawFontCharMap[256] =
+{
     65535, 0, 8, 16, 24, 31, 41, 50, 51, 65535, 65535, 57, 66, 65535, 75, 83,
     92, 96, 100, 108, 114, 123, 132, 137, 147, 152, 158, 163, 169, 172, 178, 182,
     65535, 186, 189, 193, 201, 209, 217, 226, 228, 232, 236, 244, 248, 250, 252, 253,
@@ -5660,7 +6025,8 @@ const unsigned short RawdrawFontCharMap[256] = {
     1290, 1300, 1307, 1314, 1322, 1331, 1338, 1342, 1349, 1357, 1365, 1374, 1382, 1390, 1397, 65535,
 };
 
-const unsigned char RawdrawFontCharData[1405] = {
+const unsigned char RawdrawFontCharData[1405] =
+{
     0x00, 0x09, 0x20, 0x29, 0x03, 0x23, 0x14, 0x8b, 0x00, 0x09, 0x20, 0x29, 0x04, 0x24, 0x13, 0x8c,
     0x01, 0x21, 0x23, 0x14, 0x03, 0x09, 0x11, 0x9a, 0x11, 0x22, 0x23, 0x14, 0x03, 0x02, 0x99, 0x01,
     0x21, 0x23, 0x09, 0x03, 0x29, 0x03, 0x09, 0x12, 0x9c, 0x03, 0x2b, 0x13, 0x1c, 0x23, 0x22, 0x11,
@@ -5779,9 +6145,11 @@ void CNFGDrawText( const char * text, short scale )
     int place = 0;
     unsigned short index;
     int bQuit = 0;
-    while( text[place] ) {
+    while( text[place] )
+    {
         unsigned char c = text[place];
-        switch( c ) {
+        switch( c )
+        {
         case 9: // tab
             iox += 12 * scale;
             break;
@@ -5791,7 +6159,8 @@ void CNFGDrawText( const char * text, short scale )
             break;
         default:
             index = RawdrawFontCharMap[c];
-            if( index == 65535 ) {
+            if( index == 65535 )
+            {
                 iox += 3 * scale;
                 break;
             }
@@ -5799,24 +6168,29 @@ void CNFGDrawText( const char * text, short scale )
             lmap = &RawdrawFontCharData[index];
             short penx = 0, peny = 0;
             unsigned char start_seg = 1;
-            do {
+            do
+            {
                 unsigned char data = (*(lmap++));
                 short x1 = (short)(((data >> 4) & 0x07)*scale + iox);
                 short y1 = (short)((data        & 0x07)*scale + ioy);
-                if( start_seg ) {
+                if( start_seg )
+                {
                     penx = x1;
                     peny = y1;
                     start_seg = 0;
                     if( data & 0x08 )
                         CNFGTackPixel( x1, y1 );
-                } else {
+                }
+                else
+                {
                     CNFGTackSegment( penx, peny, x1, y1 );
                     penx = x1;
                     peny = y1;
                 }
                 if( data & 0x08 ) start_seg = 1;
                 bQuit = data & 0x80;
-            } while( !bQuit );
+            }
+            while( !bQuit );
 
             iox += 3 * scale;
         }
@@ -5837,9 +6211,11 @@ void CNFGDrawNiceText(const char* text, short scale)
     unsigned short index;
     int bQuit = 0;
     int segmentEnd = 0;
-    while (text[place]) {
+    while (text[place])
+    {
         unsigned char c = text[place];
-        switch (c) {
+        switch (c)
+        {
         case 9: // tab
             iox += 16 * scale;
             break;
@@ -5849,7 +6225,8 @@ void CNFGDrawNiceText(const char* text, short scale)
             break;
         default:
             index = CharIndex[c];
-            if (index == 0) {
+            if (index == 0)
+            {
                 iox += 4 * scale;
                 break;
             }
@@ -5860,7 +6237,8 @@ void CNFGDrawNiceText(const char* text, short scale)
             short xbase = ((*lmap) & 0x18) >> 3; //0b00011000
             short ybase = (*lmap) & 0x07; //0b00000111
             lmap++;
-            do {
+            do
+            {
 
                 int x1 = ((((*lmap) & 0x38) >> 3) * scale + iox + xbase * scale); //0b00111000
                 int y1 = (((*lmap) & 0x07) * scale + ioy + ybase * scale);
@@ -5868,10 +6246,13 @@ void CNFGDrawNiceText(const char* text, short scale)
                 int x2 = 0;
                 int y2 = 0;
                 lmap++;
-                if (segmentEnd) {
+                if (segmentEnd)
+                {
                     x2 = x1;
                     y2 = y1;
-                } else {
+                }
+                else
+                {
 
                     x2 = ((((*lmap) & 0x38) >> 3) * scale + iox + xbase * scale);
                     y2 = (((*lmap) & 0x07) * scale + ioy + ybase * scale);
@@ -5882,7 +6263,8 @@ void CNFGDrawNiceText(const char* text, short scale)
                 CNFGTackSegment(x1, y1, x2, y2);
                 bQuit = *(lmap - 1) & 0x80;
 
-            } while (!bQuit);
+            }
+            while (!bQuit);
             iox += (charWidth + 2) * scale;
             //iox += 8 * scale;
         }
@@ -5899,12 +6281,16 @@ void CNFGGetTextExtents( const char * text, int * w, int * h, int textsize )
     int charsline = 0;
     const char * s;
 
-    for( s = text; *s; s++ ) {
-        if( *s == '\n' ) {
+    for( s = text; *s; s++ )
+    {
+        if( *s == '\n' )
+        {
             charsline = 0;
             if( *(s+1) )
                 charsy++;
-        } else {
+        }
+        else
+        {
             charsline++;
             if( charsline > charsx )
                 charsx = charsline;
@@ -6021,7 +6407,8 @@ void CNFGTackPoly( RDPoint * points, int verts )
     uint32_t color = CNFGLastColor;
     short * ptrsrc =  (short*)points;
 
-    for( i = 0; i < tris; i++ ) {
+    for( i = 0; i < tris; i++ )
+    {
         float * fv = &CNFGVertDataV[CNFGVertPlace*3];
         fv[0] = ptrsrc[0];
         fv[1] = ptrsrc[1];
@@ -6147,13 +6534,15 @@ void * CNFGGetProcAddress(const char *name)
     void *p = (void *)wglGetProcAddress(name);
     if(p == 0 ||
             (p == (void*)0x1) || (p == (void*)0x2) || (p == (void*)0x3) ||
-            (p == (void*)-1) ) {
+            (p == (void*)-1) )
+    {
         static HMODULE module;
         if( !module ) module = LoadLibraryA("opengl32.dll");
         p = (void *)GetProcAddress(module, name);
     }
     // We were unable to load the required openGL function
-    if (!p) {
+    if (!p)
+    {
         fprintf(stderr,"[rawdraw][warn]: Unable to load openGL extension \"%s\"\n", name);
     }
     return p;
@@ -6205,7 +6594,8 @@ static void CNFGLoadExtensionsInternal()
         !CNFGglAttachShader        || !CNFGglCompileShader           || !CNFGglGetShaderInfoLog ||
         !CNFGglDeleteShader        || !CNFGglLinkProgram             || !CNFGglCreateProgram    ||
         !CNFGglUniform4f           || !CNFGglUniform1i               || !CNFGglActiveTexture;
-    if (not_all_functions_loaded) {
+    if (not_all_functions_loaded)
+    {
         fprintf(
             stderr,
             "[rawdraw][err]: Unable to load all openGL extensions required for rawdraw\n"
@@ -6214,7 +6604,8 @@ static void CNFGLoadExtensionsInternal()
     }
 
     // Give a very stern warning if unable to create or compile shaders
-    if (!CNFGglCreateShader || !CNFGglCompileShader) {
+    if (!CNFGglCreateShader || !CNFGglCompileShader)
+    {
         fprintf(
             stderr,
             "[rawdraw][err]: Unable to create or compile shaders, this will cause a fatal error if "
@@ -6247,7 +6638,8 @@ GLuint CNFGGLInternalLoadShader( const char * vertex_shader, const char * fragme
     int ret;
 
     vertex_shader_object = CNFGglCreateShader(GL_VERTEX_SHADER);
-    if (!vertex_shader_object) {
+    if (!vertex_shader_object)
+    {
         fprintf( stderr, "Error: glCreateShader(GL_VERTEX_SHADER) "
                  "failed: 0x%08X\n", glGetError());
         goto fail;
@@ -6257,11 +6649,13 @@ GLuint CNFGGLInternalLoadShader( const char * vertex_shader, const char * fragme
     CNFGglCompileShader(vertex_shader_object);
 
     CNFGglGetShaderiv(vertex_shader_object, GL_COMPILE_STATUS, &ret);
-    if (!ret) {
+    if (!ret)
+    {
         fprintf( stderr,"Error: vertex shader compilation failed!\n");
         CNFGglGetShaderiv(vertex_shader_object, GL_INFO_LOG_LENGTH, &ret);
 
-        if (ret > 1) {
+        if (ret > 1)
+        {
             char * log = alloca(ret);
             CNFGglGetShaderInfoLog(vertex_shader_object, ret, NULL, log);
             fprintf( stderr, "%s", log);
@@ -6270,7 +6664,8 @@ GLuint CNFGGLInternalLoadShader( const char * vertex_shader, const char * fragme
     }
 
     fragment_shader_object = CNFGglCreateShader(GL_FRAGMENT_SHADER);
-    if (!fragment_shader_object) {
+    if (!fragment_shader_object)
+    {
         fprintf( stderr, "Error: glCreateShader(GL_FRAGMENT_SHADER) "
                  "failed: 0x%08X\n", glGetError());
         goto fail;
@@ -6280,11 +6675,13 @@ GLuint CNFGGLInternalLoadShader( const char * vertex_shader, const char * fragme
     CNFGglCompileShader(fragment_shader_object);
 
     CNFGglGetShaderiv(fragment_shader_object, GL_COMPILE_STATUS, &ret);
-    if (!ret) {
+    if (!ret)
+    {
         fprintf( stderr, "Error: fragment shader compilation failed!\n");
         CNFGglGetShaderiv(fragment_shader_object, GL_INFO_LOG_LENGTH, &ret);
 
-        if (ret > 1) {
+        if (ret > 1)
+        {
             char * log = malloc(ret);
             CNFGglGetShaderInfoLog(fragment_shader_object, ret, NULL, log);
             fprintf( stderr, "%s", log);
@@ -6294,7 +6691,8 @@ GLuint CNFGGLInternalLoadShader( const char * vertex_shader, const char * fragme
     }
 
     program = CNFGglCreateProgram();
-    if (!program) {
+    if (!program)
+    {
         fprintf( stderr, "Error: failed to create program!\n");
         goto fail;
     }
@@ -6308,11 +6706,13 @@ GLuint CNFGGLInternalLoadShader( const char * vertex_shader, const char * fragme
     CNFGglLinkProgram(program);
 
     CNFGglGetProgramiv(program, GL_LINK_STATUS, &ret);
-    if (!ret) {
+    if (!ret)
+    {
         fprintf( stderr, "Error: program linking failed!\n");
         CNFGglGetProgramiv(program, GL_INFO_LOG_LENGTH, &ret);
 
-        if (ret > 1) {
+        if (ret > 1)
+        {
             char *log = alloca(ret);
             CNFGglGetProgramInfoLog(program, ret, NULL, log);
             fprintf( stderr, "%s", log);
@@ -6401,7 +6801,8 @@ void CNFGInternalResizeOGLBACKEND(short x, short y)
     glViewport( 0, 0, x, y );
     gRDLastResizeW = x;
     gRDLastResizeH = y;
-    if (gRDShaderProg == 0xFFFFFFFF) {
+    if (gRDShaderProg == 0xFFFFFFFF)
+    {
         return;    // Prevent trying to set uniform if the shader isn't ready yet.
     }
     CNFGglUseProgram( gRDShaderProg );
@@ -6459,11 +6860,13 @@ void CNFGBlitTex( unsigned int tex, int x, int y, int w, int h )
 
     glBindTexture(GL_TEXTURE_2D, tex);
 
-    const float verts[] = {
+    const float verts[] =
+    {
         0,0, w,0, w,h,
         0,0, w,h, 0,h,
     };
-    static const uint8_t colors[] = {
+    static const uint8_t colors[] =
+    {
         0,0,   255,0,  255,255,
         0,0,  255,255, 0,255
     };
@@ -6502,11 +6905,13 @@ void CNFGBlitImage( uint32_t * data, int x, int y, int w, int h )
     glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,  GL_RGBA,
                   GL_UNSIGNED_BYTE, data );
 
-    const float verts[] = {
+    const float verts[] =
+    {
         0,0, w,0, w,h,
         0,0, w,h, 0,h,
     };
-    static const uint8_t colors[] = {
+    static const uint8_t colors[] =
+    {
         0,0,   255,0,  255,255,
         0,0,  255,255, 0,255
     };
@@ -6834,11 +7239,13 @@ void tdMultiply( float * fin1, float * fin2, float * fout )
     fotmp[m32] = fin1[m30] * fin2[m02] + fin1[m31] * fin2[m12] + fin1[m32] * fin2[m22] + fin1[m33] * fin2[m32];
     fotmp[m33] = fin1[m30] * fin2[m03] + fin1[m31] * fin2[m13] + fin1[m32] * fin2[m23] + fin1[m33] * fin2[m33];
 #else
-    for( i = 0; i < 16; i++ ) {
+    for( i = 0; i < 16; i++ )
+    {
         int xp = i & 0x03;
         int yp = i & 0x0c;
         fotmp[i] = 0;
-        for( k = 0; k < 4; k++ ) {
+        for( k = 0; k < 4; k++ )
+        {
             fotmp[i] += fin1[yp+k] * fin2[(k<<2)|xp];
         }
     }
@@ -6852,11 +7259,13 @@ void tdPrint( const float * f )
     int i;
     printf( "{\n" );
 #ifdef CNFG3D_USE_OGL_MAJOR
-    for( i = 0; i < 4; i++ ) {
+    for( i = 0; i < 4; i++ )
+    {
         printf( "  %f, %f, %f, %f\n", f[0+i], f[4+i], f[8+i], f[12+i] );
     }
 #else
-    for( i = 0; i < 16; i+=4 ) {
+    for( i = 0; i < 16; i+=4 )
+    {
         printf( "  %f, %f, %f, %f\n", f[0+i], f[1+i], f[2+i], f[3+i] );
     }
 #endif
@@ -7146,7 +7555,8 @@ float tdPerlin2D( float x, float y )
 
     int depth;
     float ret = 0;
-    for( depth = 0; depth < ndepth; depth++ ) {
+    for( depth = 0; depth < ndepth; depth++ )
+    {
         float nx = x / (1<<(ndepth-depth-1));
         float ny = y / (1<<(ndepth-depth-1));
         ret += tdFNoiseAt( nx, ny ) / (1<<(depth+1));

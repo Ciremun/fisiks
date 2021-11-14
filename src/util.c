@@ -46,7 +46,8 @@ void *fisiks_realloc(void *old_mem, u64 size)
 {
 // since we only have a grid
     u64 old_size = GRID_SIZE(grid);
-    if (size <= old_size) {
+    if (size <= old_size)
+    {
         heap -= old_size;
         return heap;
     }

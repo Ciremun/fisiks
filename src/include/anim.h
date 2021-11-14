@@ -8,7 +8,8 @@
 #define IDLE 2
 #define HIDDEN 3
 
-typedef struct {
+typedef struct
+{
     uint32_t color;
     double duration;
     double start;

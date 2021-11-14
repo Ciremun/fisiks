@@ -32,8 +32,10 @@ void draw_cell(Cell cell, int x, int y)
 
 void draw_cells()
 {
-    for (int y = 0; y < grid.cols; ++y) {
-        for (int x = 0; x < grid.rows; ++x) {
+    for (int y = 0; y < grid.cols; ++y)
+    {
+        for (int x = 0; x < grid.rows; ++x)
+        {
             if (!paused)
                 apply_game_rules(x, y);
             if (grid.cells[grid.cols * x + y].state == ALIVE || grid.cells[grid.cols * x + y].state == STATIC)
@@ -63,34 +65,48 @@ void toggle_cell(CellState state, int x, int y)
 {
     int cell_x, cell_y;
     cell_index(x, y, &cell_x, &cell_y);
-    next_grid.cells[grid.cols * cell_x + cell_y] = (Cell) {
+    next_grid.cells[grid.cols * cell_x + cell_y] = (Cell)
+    {
         .state = state, .color = SAND_COLOR
     };
 }
 
 void apply_game_rules(int x, int y)
 {
-    if (row_exists(y + 1)) {
-        if (grid.cells[grid.cols * x + y].state == ALIVE) {
+    if (row_exists(y + 1))
+    {
+        if (grid.cells[grid.cols * x + y].state == ALIVE)
+        {
             // sand
-            if (grid.cells[grid.cols * x + y + 1].state == EMPTY) {
+            if (grid.cells[grid.cols * x + y + 1].state == EMPTY)
+            {
                 next_grid.cells[grid.cols * x + y].state = EMPTY;
-                next_grid.cells[grid.cols * x + y + 1] = (Cell) {
-                    .state = grid.cells[grid.cols * x + y].state, .color = SAND_COLOR
+                next_grid.cells[grid.cols * x + y + 1] = (Cell)
+                {
+                    .state = grid.cells[grid.cols * x + y].state,
+                    .color = SAND_COLOR,
                 };
-            } else {
+            }
+            else
+            {
                 // bottom left cell is free
-                if (grid.cells[grid.cols * (x - 1) + y + 1].state == EMPTY) {
+                if (grid.cells[grid.cols * (x - 1) + y + 1].state == EMPTY)
+                {
                     next_grid.cells[grid.cols * x + y].state = EMPTY;
-                    next_grid.cells[grid.cols * (x - 1) + y + 1] = (Cell) {
-                        .state = ALIVE, .color = SAND_COLOR
+                    next_grid.cells[grid.cols * (x - 1) + y + 1] = (Cell)
+                    {
+                        .state = ALIVE,
+                        .color = SAND_COLOR,
                     };
                 }
                 // bottom right cell is free
-                else if (grid.cells[grid.cols * (x + 1) + y + 1].state == EMPTY) {
+                else if (grid.cells[grid.cols * (x + 1) + y + 1].state == EMPTY)
+                {
                     next_grid.cells[grid.cols * x + y].state = EMPTY;
-                    next_grid.cells[grid.cols * (x + 1) + y + 1] = (Cell) {
-                        .state = ALIVE, .color = SAND_COLOR
+                    next_grid.cells[grid.cols * (x + 1) + y + 1] = (Cell)
+                    {
+                        .state = ALIVE,
+                        .color = SAND_COLOR,
                     };
                 }
             }

@@ -47,7 +47,7 @@ void build()
 
 void fmt()
 {
-    CMD("astyle", "src/*.c", "src/include/*.h", "-n", "-r", "--style=kr");
+    CMD("astyle", "src/*.c", "src/include/*.h", "-n", "-r", "--style=allman");
 }
 
 int main(int argc, char **argv)

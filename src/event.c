@@ -1,7 +1,8 @@
 #include "event.h"
 #include "util.h"
 
-Controls controls = {
+Controls controls =
+{
     .mouse_x = -1,
     .mouse_y = -1,
     .lmb_down = 0,
@@ -10,9 +11,12 @@ Controls controls = {
 void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
 {
     if (bDown)
-        switch (keycode) {
-        case NINE_KEY: {
-            if (grid_size_change_step - 1 <= 0) {
+        switch (keycode)
+        {
+        case NINE_KEY:
+        {
+            if (grid_size_change_step - 1 <= 0)
+            {
                 display_message("too smol grid step");
                 return;
             }
@@ -22,7 +26,8 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
             change_animation_state(&message_a, FADE_IN);
         }
         break;
-        case ZERO_KEY: {
+        case ZERO_KEY:
+        {
             grid_size_change_step++;
             stbsp_snprintf(message.content, MAX_MESSAGE_SIZE, "Grid Step: %d", grid_size_change_step);
             message_t = (int)OGGetAbsoluteTime();
@@ -31,7 +36,8 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
         break;
         case SPACE_KEY:
             paused = !paused;
-            switch (pause_a.state) {
+            switch (pause_a.state)
+            {
             case FADE_IN:
                 pause_a.state = FADE_OUT;
                 break;
@@ -51,10 +57,12 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
             memset(next_grid.cells, 0, GRID_SIZE(grid));
             reset_t = (int)OGGetAbsoluteTime();
             break;
-        case MINUS_KEY: {
+        case MINUS_KEY:
+        {
             int new_rows = grid.rows - grid_size_change_step;
             int new_cols = grid.cols - grid_size_change_step;
-            if (new_rows <= 0 || new_cols <= 0) {
+            if (new_rows <= 0 || new_cols <= 0)
+            {
                 display_message("too smol");
                 return;
             }
@@ -69,8 +77,10 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
             break;
         }
 #ifdef __ANDROID__
-    else {
-        switch (keycode) {
+    else
+    {
+        switch (keycode)
+        {
         case 10:
             keyboard_up = 0;
             AndroidDisplayKeyboard(keyboard_up);
@@ -86,9 +96,11 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
 void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
 {
     (void)button;
-    if (bDown) {
+    if (bDown)
+    {
 #ifdef __ANDROID__
-        if ((w - 100 <= x && x <= w) && (0 <= y && y <= 100)) {
+        if ((w - 100 <= x && x <= w) && (0 <= y && y <= 100))
+        {
             keyboard_up = !keyboard_up;
             AndroidDisplayKeyboard(keyboard_up);
             return;

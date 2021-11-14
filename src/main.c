@@ -41,7 +41,8 @@ double absolute_time;
 
 char message_buffer[MAX_MESSAGE_SIZE];
 
-String message = {
+String message =
+{
     .content = message_buffer,
     .length = 0,
 };
@@ -90,31 +91,40 @@ int EXPORT("main") main()
     grid.cells = calloc(1, GRID_SIZE(grid));
     next_grid.cells = calloc(1, GRID_SIZE(grid));
 
-    next_grid.cells[grid.cols * 14 + 2] = (Cell) {
+    next_grid.cells[grid.cols * 14 + 2] = (Cell)
+    {
         .state = ALIVE, .color = SAND_COLOR
     };
-    next_grid.cells[grid.cols * 16 + 2] = (Cell) {
+    next_grid.cells[grid.cols * 16 + 2] = (Cell)
+    {
         .state = ALIVE, .color = SAND_COLOR
     };
-    next_grid.cells[grid.cols * 15 + 3] = (Cell) {
+    next_grid.cells[grid.cols * 15 + 3] = (Cell)
+    {
         .state = ALIVE, .color = SAND_COLOR
     };
-    next_grid.cells[grid.cols * 14 + 4] = (Cell) {
+    next_grid.cells[grid.cols * 14 + 4] = (Cell)
+    {
         .state = ALIVE, .color = SAND_COLOR
     };
-    next_grid.cells[grid.cols * 16 + 4] = (Cell) {
+    next_grid.cells[grid.cols * 16 + 4] = (Cell)
+    {
         .state = ALIVE, .color = SAND_COLOR
     };
-    next_grid.cells[grid.cols * 14 + 6] = (Cell) {
+    next_grid.cells[grid.cols * 14 + 6] = (Cell)
+    {
         .state = ALIVE, .color = SAND_COLOR
     };
-    next_grid.cells[grid.cols * 16 + 6] = (Cell) {
+    next_grid.cells[grid.cols * 16 + 6] = (Cell)
+    {
         .state = ALIVE, .color = SAND_COLOR
     };
-    next_grid.cells[grid.cols * 15 + 7] = (Cell) {
+    next_grid.cells[grid.cols * 15 + 7] = (Cell)
+    {
         .state = ALIVE, .color = SAND_COLOR
     };
-    next_grid.cells[grid.cols * 15 + 8] = (Cell) {
+    next_grid.cells[grid.cols * 15 + 8] = (Cell)
+    {
         .state = ALIVE, .color = SAND_COLOR
     };
 
