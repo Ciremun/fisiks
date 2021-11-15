@@ -59,8 +59,8 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
             break;
         case MINUS_KEY:
         {
-            int new_rows = grid.rows - grid_size_change_step;
-            int new_cols = grid.cols - grid_size_change_step;
+            int new_rows = grid.rows / 2;
+            int new_cols = grid.cols / 2;
             if (new_rows <= 0 || new_cols <= 0)
             {
                 display_message("too smol");
@@ -73,7 +73,7 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
         case EQ_KEY:
 #endif
         case PLUS_KEY:
-            change_grid_size(grid.rows + grid_size_change_step, grid.cols + grid_size_change_step);
+            change_grid_size(grid.rows * 2, grid.cols * 2);
             break;
         }
 #ifdef __ANDROID__
