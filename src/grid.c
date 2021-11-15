@@ -2,7 +2,6 @@
 
 Grid grid = {0};
 Grid next_grid = {0};
-int grid_size_change_step = 4;
 
 // TODO: null check
 void change_grid_size(int new_rows, int new_cols)

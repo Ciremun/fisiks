@@ -13,27 +13,6 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
     if (bDown)
         switch (keycode)
         {
-        case NINE_KEY:
-        {
-            if (grid_size_change_step - 1 <= 0)
-            {
-                display_message("too smol grid step");
-                return;
-            }
-            grid_size_change_step--;
-            stbsp_snprintf(message.content, MAX_MESSAGE_SIZE, "Grid Step: %d", grid_size_change_step);
-            message_t = (int)OGGetAbsoluteTime();
-            change_animation_state(&message_a, FADE_IN);
-        }
-        break;
-        case ZERO_KEY:
-        {
-            grid_size_change_step++;
-            stbsp_snprintf(message.content, MAX_MESSAGE_SIZE, "Grid Step: %d", grid_size_change_step);
-            message_t = (int)OGGetAbsoluteTime();
-            change_animation_state(&message_a, FADE_IN);
-        }
-        break;
         case SPACE_KEY:
             paused = !paused;
             switch (pause_a.state)
