@@ -1,7 +1,7 @@
 //Portions of code from zNoctum and redline2466
 
 //Global memory for application.
-let memory = new WebAssembly.Memory({initial:65536});
+let memory = new WebAssembly.Memory({initial:4096});
 let HEAP8 = new Int8Array(memory.buffer);
 let HEAPU8 = new Uint8Array(memory.buffer);
 let HEAP16 = new Int16Array(memory.buffer);
