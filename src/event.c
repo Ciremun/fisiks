@@ -101,7 +101,9 @@ void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
 #endif
     controls.mouse_x = x;
     controls.mouse_y = y;
-    toggle_cell(ALIVE, x, y, SAND);
+
+    if (controls.lmb_down)
+        toggle_cell(ALIVE, x, y, SAND);
 }
 
 void HandleDestroy() {}

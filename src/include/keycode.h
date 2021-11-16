@@ -7,14 +7,16 @@
 #define TWO_KEY 50
 #define NINE_KEY 57
 
-#define LMB_KEY 1
-#define RMB_KEY 2
 
 #ifdef __wasm__
 #define R_KEY 82
+#define LMB_KEY 0
 #else
+#define LMB_KEY 1
 #define R_KEY 114
 #endif // __wasm__
+
+#define RMB_KEY 2
 
 #if defined(_WIN32) || defined(__wasm__)
 #define MINUS_KEY 189
