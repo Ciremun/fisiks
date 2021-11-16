@@ -73,7 +73,7 @@ void toggle_cell(CellState state, int x, int y, uint32_t color)
     int cell_x, cell_y;
     cell_index(x, y, &cell_x, &cell_y);
     if (state == EMPTY)
-        set_adjacent_cells_state_if_not_empty(&next_grid, ALIVE, cell_x, cell_y);
+        set_adjacent_cells_state_if_not_empty(&next_grid, ALIVE, cell_x, cell_y, ALL);
     else if (grid.cells[grid.cols * cell_x + cell_y].state != EMPTY)
         return;
     next_grid.cells[grid.cols * cell_x + cell_y] = (Cell)
@@ -97,7 +97,7 @@ void apply_game_rules(int x, int y)
                     .state = grid.cells[grid.cols * x + y].state,
                     .color = SAND,
                 };
-                set_adjacent_cells_state_if_not_empty(&next_grid, ALIVE, x, y);
+                set_adjacent_cells_state_if_not_empty(&next_grid, ALIVE, x, y, TOP | LEFT | RIGHT);
             }
             else
             {
@@ -110,7 +110,7 @@ void apply_game_rules(int x, int y)
                         .state = ALIVE,
                         .color = SAND,
                     };
-                    set_adjacent_cells_state_if_not_empty(&next_grid, ALIVE, x, y);
+                    set_adjacent_cells_state_if_not_empty(&next_grid, ALIVE, x, y, ALL);
                 }
                 // bottom right cell is free
                 else if (row_exists(x + 1) && grid.cells[grid.cols * (x + 1) + y + 1].state == EMPTY)
@@ -121,7 +121,7 @@ void apply_game_rules(int x, int y)
                         .state = ALIVE,
                         .color = SAND,
                     };
-                    set_adjacent_cells_state_if_not_empty(&next_grid, ALIVE, x, y);
+                    set_adjacent_cells_state_if_not_empty(&next_grid, ALIVE, x, y, ALL);
                 }
                 else
                 {
@@ -130,7 +130,7 @@ void apply_game_rules(int x, int y)
                         .state = STATIC,
                         .color = STATIC_SAND,
                     };
-                    set_adjacent_cells_state_if_not_empty(&next_grid, ALIVE, x, y);
+                    set_adjacent_cells_state_if_not_empty(&next_grid, ALIVE, x, y, ALL);
                 }
             }
         }
@@ -141,18 +141,25 @@ void apply_game_rules(int x, int y)
                 .state = STATIC,
                 .color = STATIC_SAND,
             };
+            set_adjacent_cells_state_if_not_empty(&next_grid, ALIVE, x, y, ALL);
         }
     }
 }
 
-void set_adjacent_cells_state_if_not_empty(Grid* grid, CellState state, int x, int y)
+void set_cell_state_at_if_not_empty(Grid *grid, uint64_t idx, CellState state)
 {
-    Cell *left = &grid->cells[grid->cols * (x - 1) + y];
-    Cell *right = &grid->cells[grid->cols * (x + 1) + y];
-    Cell *bottom = &grid->cells[grid->cols * x + y + 1];
-    Cell *top = &grid->cells[grid->cols * x + y - 1];
-    if (left->state   != EMPTY) left->state = state;
-    if (right->state  != EMPTY) right->state = state;
-    if (bottom->state    != EMPTY) bottom->state = state;
-    if (top->state != EMPTY) top->state = state;
+    Cell *cell = &grid->cells[idx];
+    if (cell->state != EMPTY) cell->state = state;
+}
+
+void set_adjacent_cells_state_if_not_empty(Grid* grid, CellState state, int x, int y, uint8_t flags)
+{
+    if (flags & TOP)
+        set_cell_state_at_if_not_empty(grid, grid->cols * x + y - 1, state);
+    if (flags & RIGHT)
+        set_cell_state_at_if_not_empty(grid, grid->cols * (x + 1) + y, state);
+    if (flags & BOTTOM)
+        set_cell_state_at_if_not_empty(grid, grid->cols * x + y + 1, state);
+    if (flags & LEFT)
+        set_cell_state_at_if_not_empty(grid, grid->cols * (x - 1) + y, state);
 }
