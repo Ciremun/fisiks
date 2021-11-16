@@ -17,6 +17,7 @@ typedef struct
     int mouse_x;
     int mouse_y;
     int lmb_down;
+    int rmb_down;
 } Controls;
 
 #endif // _EVENT_H_

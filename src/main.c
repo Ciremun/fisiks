@@ -87,45 +87,47 @@ int EXPORT("main") main()
     cell_height = cell_width = min(w, h) / DEFAULT_CELL_SIZE;
     grid.rows = w / cell_width;
     grid.cols = h / cell_height;
+    next_grid.rows = grid.rows;
+    next_grid.cols = grid.cols;
 
     grid.cells = calloc(1, GRID_SIZE(grid));
     next_grid.cells = calloc(1, GRID_SIZE(grid));
 
     next_grid.cells[grid.cols * 14 + 2] = (Cell)
     {
-        .state = ALIVE, .color = SAND_COLOR
+        .state = ALIVE, .color = SAND
     };
     next_grid.cells[grid.cols * 16 + 2] = (Cell)
     {
-        .state = ALIVE, .color = SAND_COLOR
+        .state = ALIVE, .color = SAND
     };
     next_grid.cells[grid.cols * 15 + 3] = (Cell)
     {
-        .state = ALIVE, .color = SAND_COLOR
+        .state = ALIVE, .color = SAND
     };
     next_grid.cells[grid.cols * 14 + 4] = (Cell)
     {
-        .state = ALIVE, .color = SAND_COLOR
+        .state = ALIVE, .color = SAND
     };
     next_grid.cells[grid.cols * 16 + 4] = (Cell)
     {
-        .state = ALIVE, .color = SAND_COLOR
+        .state = ALIVE, .color = SAND
     };
     next_grid.cells[grid.cols * 14 + 6] = (Cell)
     {
-        .state = ALIVE, .color = SAND_COLOR
+        .state = ALIVE, .color = SAND
     };
     next_grid.cells[grid.cols * 16 + 6] = (Cell)
     {
-        .state = ALIVE, .color = SAND_COLOR
+        .state = ALIVE, .color = SAND
     };
     next_grid.cells[grid.cols * 15 + 7] = (Cell)
     {
-        .state = ALIVE, .color = SAND_COLOR
+        .state = ALIVE, .color = SAND
     };
     next_grid.cells[grid.cols * 15 + 8] = (Cell)
     {
-        .state = ALIVE, .color = SAND_COLOR
+        .state = ALIVE, .color = SAND
     };
 
     display_message("fisiks");
@@ -150,7 +152,9 @@ int EXPORT("loop") loop()
 #endif // __wasm__
 
         if (controls.lmb_down)
-            toggle_cell(ALIVE, controls.mouse_x, controls.mouse_y);
+            toggle_cell(ALIVE, controls.mouse_x, controls.mouse_y, SAND);
+        else if (controls.rmb_down)
+            toggle_cell(EMPTY, controls.mouse_x, controls.mouse_y, 0);
 
         draw_cells();
 

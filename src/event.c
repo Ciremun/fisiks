@@ -1,11 +1,13 @@
 #include "event.h"
 #include "util.h"
+#include "color.h"
 
 Controls controls =
 {
     .mouse_x = -1,
     .mouse_y = -1,
     .lmb_down = 0,
+    .rmb_down = 0,
 };
 
 void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
@@ -74,7 +76,6 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
 
 void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
 {
-    (void)button;
     if (bDown)
     {
 #ifdef __ANDROID__
@@ -86,7 +87,8 @@ void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
         }
 #endif // __ANDROID__
     }
-    controls.lmb_down = bDown;
+    controls.lmb_down = bDown && button == LMB_KEY;
+    controls.rmb_down = bDown && button == RMB_KEY;
     controls.mouse_x = x;
     controls.mouse_y = y;
 }
@@ -99,7 +101,7 @@ void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
 #endif
     controls.mouse_x = x;
     controls.mouse_y = y;
-    toggle_cell(ALIVE, x, y);
+    toggle_cell(ALIVE, x, y, SAND);
 }
 
 void HandleDestroy() {}

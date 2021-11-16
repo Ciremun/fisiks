@@ -1,11 +1,14 @@
-#ifndef _KEYCODES_H_
-#define _KEYCODES_H_
+#ifndef _KEYCODE_H_
+#define _KEYCODE_H_
 
 #define SPACE_KEY 32
 #define ZERO_KEY 48
 #define ONE_KEY 49
 #define TWO_KEY 50
 #define NINE_KEY 57
+
+#define LMB_KEY 1
+#define RMB_KEY 2
 
 #ifdef __wasm__
 #define R_KEY 82
@@ -21,4 +24,4 @@
 #define PLUS_KEY 43
 #define EQ_KEY 61
 #endif // _WIN32
-#endif // _KEYCODES_H_
+#endif // _KEYCODE_H_

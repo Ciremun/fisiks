@@ -31,7 +31,8 @@ void draw_cells();
 void cell_index(int x, int y, int *cell_x, int *cell_y);
 int row_exists(int cell_y);
 int col_exists(int cell_x);
-void toggle_cell(CellState state, int x, int y);
+void toggle_cell(CellState state, int x, int y, uint32_t color);
 void apply_game_rules(int x, int y);
+void set_adjacent_cells_state_if_not_empty(Grid* grid, CellState state, int x, int y);
 
 #endif // _GRID_H_
