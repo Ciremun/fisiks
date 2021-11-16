@@ -78,9 +78,9 @@ void toggle_cell(CellState state, int x, int y)
 
 void apply_game_rules(int x, int y)
 {
-    if (col_exists(y + 1))
+    if (grid.cells[grid.cols * x + y].state == ALIVE)
     {
-        if (grid.cells[grid.cols * x + y].state == ALIVE)
+        if (col_exists(y + 1))
         {
             // sand
             if (grid.cells[grid.cols * x + y + 1].state == EMPTY)
@@ -114,7 +114,24 @@ void apply_game_rules(int x, int y)
                         .color = SAND_COLOR,
                     };
                 }
+                else
+                {
+                    next_grid.cells[grid.cols * x + y] = (Cell)
+                    {
+                        .state = STATIC,
+                        .color = COLOR(0xB88B4Aff),
+                    };
+                }
             }
+        }
+        else
+        {
+            next_grid.cells[grid.cols * x + y] = (Cell)
+            {
+                .state = STATIC,
+                .color = COLOR(0xff0000ff),
+            };
+            // B88B4A
         }
     }
 }
