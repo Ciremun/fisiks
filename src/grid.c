@@ -70,10 +70,13 @@ void toggle_cell(CellState state, int x, int y)
 {
     int cell_x, cell_y;
     cell_index(x, y, &cell_x, &cell_y);
-    next_grid.cells[grid.cols * cell_x + cell_y] = (Cell)
+    if (grid.cells[grid.cols * cell_x + cell_y].state == EMPTY)
     {
-        .state = state, .color = SAND_COLOR
-    };
+        next_grid.cells[grid.cols * cell_x + cell_y] = (Cell)
+        {
+            .state = state, .color = SAND_COLOR
+        };
+    }
 }
 
 void apply_game_rules(int x, int y)
