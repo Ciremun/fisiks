@@ -284,9 +284,9 @@ if( RAWDRAW_NEED_BLITTER )
 			{
 				canvas.addEventListener('mouseup', e => { instance.exports.HandleButton( e.offsetX, e.offsetY, e.button, 0 ); return false; } );
 				canvas.addEventListener('mousedown', e => { instance.exports.HandleButton( e.offsetX, e.offsetY, e.button, 1 ); return false; } );
-                canvas.addEventListener('touchstart', e => { e.preventDefault(); instance.exports.HandleButton( e.touches[0].clientX, e.touches[0].clientY, 0, 1 ); return false; } );
-				canvas.addEventListener('touchend', e => { e.preventDefault(); instance.exports.HandleButton( e.touches[0].clientX, e.touches[0].clientY, 0, 0 ); return false; } );
-				canvas.addEventListener('touchcancel', e => { e.preventDefault(); instance.exports.HandleButton( e.touches[0].clientX, e.touches[0].clientY, 0, 0 ); return false; } );
+                canvas.addEventListener('touchstart', e => { instance.exports.HandleButton( e.touches[0].clientX, e.touches[0].clientY, 0, 1 ); return false; } );
+				canvas.addEventListener('touchend', e => { instance.exports.HandleButton( e.touches[0].clientX, e.touches[0].clientY, 0, 0 ); return false; } );
+				canvas.addEventListener('touchcancel', e => { instance.exports.HandleButton( e.touches[0].clientX, e.touches[0].clientY, 0, 0 ); return false; } );
             }
 
 			if( instance.exports.HandleKey )
