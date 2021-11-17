@@ -11,6 +11,9 @@
 #ifdef __wasm__
 #define R_KEY 82
 #define LMB_KEY 0
+#elif defined(__ANDROID__)
+#define LMB_KEY 0
+#define R_KEY 114
 #else
 #define LMB_KEY 1
 #define R_KEY 114
