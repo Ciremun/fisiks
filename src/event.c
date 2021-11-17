@@ -91,6 +91,10 @@ void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
     controls.rmb_down = bDown && button == RMB_KEY;
     controls.mouse_x = x;
     controls.mouse_y = y;
+
+    stbsp_snprintf(message.content, MAX_MESSAGE_SIZE, "keycode: %d", button);
+    message_t = (int)OGGetAbsoluteTime();
+    change_animation_state(&message_a, FADE_IN);
 }
 
 void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
@@ -98,11 +102,13 @@ void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
 #ifndef __ANDROID__
     if (!mask)
         return;
-#endif
+#endif // __ANDROID__
     controls.mouse_x = x;
     controls.mouse_y = y;
 
+#ifndef __ANDROID__
     if (controls.lmb_down)
+#endif // __ANDROID__
         toggle_cell(ALIVE, x, y, SAND);
 }
 
