@@ -92,7 +92,7 @@ void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
     controls.mouse_x = x;
     controls.mouse_y = y;
 
-    stbsp_snprintf(message.content, MAX_MESSAGE_SIZE, "keycode: %d", button);
+    stbsp_snprintf(message.content, MAX_MESSAGE_SIZE, "%d, %d", button, bDown);
     message_t = (int)OGGetAbsoluteTime();
     change_animation_state(&message_a, FADE_IN);
 }
