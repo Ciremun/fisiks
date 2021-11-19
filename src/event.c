@@ -112,9 +112,14 @@ void HandleDestroy() {}
 
 void EXPORT("OnResize") OnResize(int new_width, int new_height)
 {
+    if (!grid.cells)
+        return;
+
     w = new_width;
     h = new_height;
+#ifdef __wasm__
     CNFGSetup(WINDOW_NAME, w, h);
+#endif // __wasm__
     cell_height = cell_width = min(w, h) / DEFAULT_CELL_SIZE;
     grid.rows = w / cell_width;
     grid.cols = h / cell_height;

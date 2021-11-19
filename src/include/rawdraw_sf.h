@@ -3556,6 +3556,20 @@ LRESULT CALLBACK MyWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         HandleDestroy();
         CNFGTearDown();
         return 0;
+    case WM_SIZE:
+    {
+        if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED)
+        {
+           WORD width = LOWORD(lParam);
+           WORD height = HIWORD(lParam);
+           OnResize(width, height);
+        }
+    } break;
+    case WM_SIZING:
+    {
+        RECT *rect = (RECT *)lParam;
+        OnResize(rect->right - rect->left, rect->bottom - rect->top - 50);
+    } break;
     }
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }

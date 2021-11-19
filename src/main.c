@@ -17,6 +17,8 @@
 #define STB_SPRINTF_IMPLEMENTATION
 #include "stb_sprintf.h"
 
+void OnResize(int new_width, int new_height);
+
 #define CNFG_IMPLEMENTATION
 #include "rawdraw_sf.h"
 
