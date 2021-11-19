@@ -34,6 +34,7 @@
 int paused = 0;
 int reset_t = 0;
 int message_t = 0;
+int update_cells_count = 1;
 
 short w, h;
 int cell_width, cell_height;
@@ -133,8 +134,6 @@ int EXPORT("main") main()
 
     display_message("fisiks");
 
-    double start = OGGetAbsoluteTime();
-
 #ifdef RAWDRAW_USE_LOOP_FUNCTION
     return 0;
 }
@@ -165,9 +164,9 @@ int EXPORT("loop") loop()
 
         draw_messages();
 
-        if (absolute_time - start > 0.015)
+        if (update_cells_count)
         {
-            start = OGGetAbsoluteTime();
+            update_cells_count = 0;
             int cells_count = 0;
             for (int y = 0; y < grid.cols; ++y)
                 for (int x = 0; x < grid.rows; ++x)

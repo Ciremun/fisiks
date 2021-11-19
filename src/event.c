@@ -34,6 +34,7 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
             }
             break;
         case R_KEY:
+            memcpy(cells_count_buffer, "0", 2);
             memset(grid.cells, 0, GRID_SIZE(grid));
             memset(next_grid.cells, 0, GRID_SIZE(grid));
             reset_t = (int)OGGetAbsoluteTime();

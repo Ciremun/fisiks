@@ -18,6 +18,7 @@ void change_grid_size(int new_rows, int new_cols)
     message.length = stbsp_snprintf(message.content, MAX_MESSAGE_SIZE, "Grid Size: %dx%d", new_rows, new_cols);
     message_t = (int)OGGetAbsoluteTime();
     change_animation_state(&message_a, FADE_IN);
+    memcpy(cells_count_buffer, "0", 2);
 }
 
 void draw_cell(Cell cell, int x, int y)
@@ -73,13 +74,20 @@ void toggle_cell(CellState state, int x, int y, uint32_t color)
     int cell_x, cell_y;
     cell_index(x, y, &cell_x, &cell_y);
     if (state == EMPTY)
+    {
+        if (grid.cells[grid.cols * cell_x + cell_y].state == EMPTY)
         set_adjacent_cells_state_if_not_empty(&next_grid, ALIVE, cell_x, cell_y, ALL);
-    else if (grid.cells[grid.cols * cell_x + cell_y].state != EMPTY)
-        return;
+    }
+    else
+    {
+        if (grid.cells[grid.cols * cell_x + cell_y].state != EMPTY)
+            return;
+    }
     next_grid.cells[grid.cols * cell_x + cell_y] = (Cell)
     {
         .state = state, .color = color
     };
+    update_cells_count = 1;
 }
 
 void apply_game_rules(int x, int y)
