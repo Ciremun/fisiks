@@ -76,6 +76,7 @@ void toggle_cell(CellState state, int x, int y, uint32_t color)
     if (state == EMPTY)
     {
         if (grid.cells[grid.cols * cell_x + cell_y].state == EMPTY)
+            return;
         set_adjacent_cells_state_if_not_empty(&next_grid, ALIVE, cell_x, cell_y, ALL);
     }
     else
