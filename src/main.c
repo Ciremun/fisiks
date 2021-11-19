@@ -147,8 +147,6 @@ int EXPORT("loop") loop()
         CNFGHandleInput();
 
 #ifndef __wasm__
-        if (suspended)
-            continue;
         if (!paused)
             OGUSleep(5000);
 #endif // __wasm__

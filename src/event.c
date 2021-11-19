@@ -110,6 +110,23 @@ void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
 
 void HandleDestroy() {}
 
+void EXPORT("OnResize") OnResize(int new_width, int new_height)
+{
+    w = new_width;
+    h = new_height;
+    CNFGSetup(WINDOW_NAME, w, h);
+    cell_height = cell_width = min(w, h) / DEFAULT_CELL_SIZE;
+    grid.rows = w / cell_width;
+    grid.cols = h / cell_height;
+    next_grid.rows = grid.rows;
+    next_grid.cols = grid.cols;
+
+    for (int y = 0; y < grid.cols; ++y)
+        for (int x = 0; x < grid.rows; ++x)
+            if (grid.cells[grid.cols * x + y].state != EMPTY)
+                grid.cells[grid.cols * x + y].state = ALIVE;
+}
+
 #ifndef __wasm__
 void HandleSuspend()
 {
