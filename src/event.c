@@ -76,6 +76,9 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
 
 void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
 {
+    if (!bDown) {
+        display_message("touchend");
+    }
     if (bDown)
     {
 #ifdef __ANDROID__
@@ -91,10 +94,6 @@ void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
     controls.rmb_down = bDown && button == RMB_KEY;
     controls.mouse_x = x;
     controls.mouse_y = y;
-
-    stbsp_snprintf(message.content, MAX_MESSAGE_SIZE, "%d, %d", button, bDown);
-    message_t = (int)OGGetAbsoluteTime();
-    change_animation_state(&message_a, FADE_IN);
 }
 
 void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
