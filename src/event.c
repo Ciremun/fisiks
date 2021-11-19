@@ -105,10 +105,9 @@ void EXPORT("HandleMotion") HandleMotion(int x, int y, int mask)
     controls.mouse_x = x;
     controls.mouse_y = y;
 
-#ifndef __ANDROID__
-    if (controls.lmb_down)
+#ifdef __ANDROID__
+    toggle_cell(ALIVE, x, y, SAND);
 #endif // __ANDROID__
-        toggle_cell(ALIVE, x, y, SAND);
 }
 
 void HandleDestroy() {}
