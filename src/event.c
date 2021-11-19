@@ -76,9 +76,6 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
 
 void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
 {
-    if (!bDown) {
-        display_message("touchend");
-    }
     if (bDown)
     {
 #ifdef __ANDROID__

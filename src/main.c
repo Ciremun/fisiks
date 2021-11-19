@@ -39,7 +39,8 @@ short w, h;
 int cell_width, cell_height;
 double absolute_time;
 
-char message_buffer[MAX_MESSAGE_SIZE];
+char message_buffer[MAX_MESSAGE_SIZE] = {0};
+char cells_count_buffer[MAX_MESSAGE_SIZE] = {0};
 
 String message =
 {
@@ -132,6 +133,8 @@ int EXPORT("main") main()
 
     display_message("fisiks");
 
+    double start = OGGetAbsoluteTime();
+
 #ifdef RAWDRAW_USE_LOOP_FUNCTION
     return 0;
 }
@@ -159,7 +162,30 @@ int EXPORT("loop") loop()
         draw_cells();
 
         absolute_time = OGGetAbsoluteTime();
+
         draw_messages();
+
+        if (absolute_time - start > 0.015)
+        {
+            start = OGGetAbsoluteTime();
+            int cells_count = 0;
+            for (int y = 0; y < grid.cols; ++y)
+                for (int x = 0; x < grid.rows; ++x)
+                    if (grid.cells[grid.cols * x + y].state != EMPTY)
+                        cells_count++;
+            stbsp_snprintf(cells_count_buffer, MAX_MESSAGE_SIZE, "%d", cells_count);
+        }
+
+        CNFGColor(WHITE);
+        draw_text(cells_count_buffer,
+#ifdef __ANDROID__
+                  30,
+                  h - 110
+#else
+                  10,
+                  h - 50
+#endif // __ANDROID__
+                  , font_size);
 
         CNFGSwapBuffers();
     }
