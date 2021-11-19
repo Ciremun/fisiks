@@ -87,8 +87,8 @@ void EXPORT("HandleButton") HandleButton(int x, int y, int button, int bDown)
         }
 #endif // __ANDROID__
     }
-    controls.lmb_down = bDown && button == LMB_KEY;
-    controls.rmb_down = bDown && button == RMB_KEY;
+    controls.lmb_down = bDown && (button == LMB_KEY);
+    controls.rmb_down = bDown && (button == RMB_KEY);
     controls.mouse_x = x;
     controls.mouse_y = y;
 }
@@ -117,5 +117,10 @@ void HandleSuspend()
 void HandleResume()
 {
     suspended = 0;
+}
+#else
+void EXPORT("touchend") touchend(void)
+{
+    controls.lmb_down = 0;
 }
 #endif // __wasm__
