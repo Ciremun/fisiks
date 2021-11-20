@@ -31,7 +31,7 @@ void display_message(char *msg)
     memset(message.content, 0, MAX_MESSAGE_SIZE);
     memcpy(message.content, msg, message_length + 1);
     message.length = message_length;
-    message_t = OGGetAbsoluteTime();
+    message_a.start = OGGetAbsoluteTime();
     change_animation_state(&message_a, FADE_IN);
 }
 
@@ -89,9 +89,9 @@ void draw_messages()
     }
     if (message_a.state != HIDDEN)
     {
-        if (message_t && absolute_time - message_t > 2)
+        if (message_a.start && absolute_time - message_a.start > 2)
         {
-            message_t = 0;
+            message_a.start = 0;
             change_animation_state(&message_a, FADE_OUT);
         }
         set_fade_color(&message_a);
