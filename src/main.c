@@ -35,7 +35,7 @@ void OnResize(int new_width, int new_height);
 
 int paused = 0;
 int reset_t = 0;
-int message_t = 0;
+double message_t = 0;
 int update_cells_count = 1;
 
 short w, h;

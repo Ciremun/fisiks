@@ -16,7 +16,7 @@ void change_grid_size(int new_rows, int new_cols)
     memset(grid.cells, 0, GRID_SIZE(grid));
     memset(next_grid.cells, 0, GRID_SIZE(grid));
     message.length = stbsp_snprintf(message.content, MAX_MESSAGE_SIZE, "Grid Size: %dx%d", new_rows, new_cols);
-    message_t = (int)OGGetAbsoluteTime();
+    message_t = OGGetAbsoluteTime();
     change_animation_state(&message_a, FADE_IN);
     memcpy(cells_count_buffer, "0", 2);
 }

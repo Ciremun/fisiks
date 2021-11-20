@@ -31,7 +31,7 @@ void display_message(char *msg)
     memset(message.content, 0, MAX_MESSAGE_SIZE);
     memcpy(message.content, msg, message_length + 1);
     message.length = message_length;
-    message_t = (int)OGGetAbsoluteTime();
+    message_t = OGGetAbsoluteTime();
     change_animation_state(&message_a, FADE_IN);
 }
 

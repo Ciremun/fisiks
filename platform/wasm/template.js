@@ -159,7 +159,7 @@ let imports = {
             HEAP16[pw >> 1] = canvas.width;
             HEAP16[ph >> 1] = canvas.height;
         },
-        OGGetAbsoluteTime: () => { return new Date().getTime() / 1000.; },
+        OGGetAbsoluteTime: () => { return performance.now() / 1000.; },
 
         Add1: (i) => { return i + 1; }, //Super simple function for speed testing.
 
