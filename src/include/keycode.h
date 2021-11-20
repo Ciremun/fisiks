@@ -19,14 +19,15 @@
 #define R_KEY 114
 #endif // __wasm__
 
-#define RMB_KEY 2
 
 #if defined(_WIN32) || defined(__wasm__)
 #define MINUS_KEY 189
 #define PLUS_KEY 187
+#define RMB_KEY 2
 #else
 #define MINUS_KEY 45
 #define PLUS_KEY 43
 #define EQ_KEY 61
+#define RMB_KEY 3
 #endif // _WIN32
 #endif // _KEYCODE_H_
