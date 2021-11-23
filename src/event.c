@@ -55,7 +55,7 @@ void EXPORT("HandleKey") HandleKey(int keycode, int bDown)
         case EQ_KEY:
 #endif
         case PLUS_KEY:
-            change_grid_size(grid.rows * 1.5f, grid.cols * 1.5f);
+            change_grid_size(ceilf(grid.rows * 1.5f), ceilf(grid.cols * 1.5f));
             break;
         }
 #ifdef __ANDROID__
