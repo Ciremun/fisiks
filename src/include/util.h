@@ -39,6 +39,7 @@ void *fisiks_malloc(u64 size);
 void *fisiks_calloc(u64 num, u64 size);
 void *fisiks_realloc(void *old_mem, u64 size);
 void print(double idebug);
+float ceilf(float i);
 #endif // __wasm__
 
 void draw_text(const char *text, int x, int y, int font_size);

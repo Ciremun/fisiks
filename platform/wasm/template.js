@@ -170,6 +170,7 @@ let imports = {
         sinf: Math.sin,
         cosf: Math.cos,
         tanf: Math.tan,
+        ceilf: Math.ceil,
 
         //Quick-and-dirty debug.
         print: console.log,
