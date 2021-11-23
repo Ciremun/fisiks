@@ -7,6 +7,8 @@ Grid next_grid = {0};
 void change_grid_size(int new_rows, int new_cols)
 {
     cell_height = cell_width = min(w, h) / min(new_rows, new_cols);
+    if (cell_width <= 0) cell_width = 1;
+    if (cell_height <= 0) cell_height = 1;
     grid.rows = w / cell_width;
     grid.cols = h / cell_height;
     next_grid.rows = grid.rows;
